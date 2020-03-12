@@ -1,4 +1,4 @@
-package ui;
+package CSE564_Project_Spring2020.ui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

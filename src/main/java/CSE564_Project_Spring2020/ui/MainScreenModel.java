@@ -1,4 +1,4 @@
-package ui;
+package CSE564_Project_Spring2020.ui;
 
 public class MainScreenModel {
 	static class AccelerationEventData {
