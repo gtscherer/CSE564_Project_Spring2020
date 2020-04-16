@@ -1,0 +1,33 @@
+package CSE564_Project_Spring2020.sim;
+
+import static CSE564_Project_Spring2020.sim.DegreeAssertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class WorldUnitTest {
+	
+	@Test
+	void smokeTest() {
+		World cut = new World();
+		
+		assertEquals(0.0d, cut.getCurrentRoll());
+		assertEquals(0.0d, cut.getCurrentPitch());
+		assertEquals(0.0d, cut.getCurrentYaw());
+		
+		cut.rollChanged(new Degree(3.0d));
+		assertEquals(3.0d, cut.getCurrentRoll());
+		assertEquals(0.0d, cut.getCurrentPitch());
+		assertEquals(0.0d, cut.getCurrentYaw());
+		
+		cut.pitchChanged(new Degree(-1.0d));
+		assertEquals(3.0d, cut.getCurrentRoll());
+		assertEquals(359.0d, cut.getCurrentPitch());
+		assertEquals(0.0d, cut.getCurrentYaw());
+		
+		cut.yawChanged(new Degree(365));
+		assertEquals(3.0d, cut.getCurrentRoll());
+		assertEquals(359.0d, cut.getCurrentPitch());
+		assertEquals(5.0d, cut.getCurrentYaw());
+	}
+
+}

@@ -28,7 +28,7 @@ public class MainScreen {
         
         newFrame.add(buildControlPanel());
         
-        newFrame.setSize(500, 500);
+        newFrame.setSize(400, 400);
         
         MainScreenController.addEventButtonListener.registerMainScreen(newFrame);
         MainScreenController.addEventButtonListener.registerMainScreenModel(model);
@@ -43,6 +43,8 @@ public class MainScreen {
     	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.ROLL), gridLocation(0, 1));
     	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.PITCH), gridLocation(0, 2));
     	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.YAW), gridLocation(0, 3));
+    	newPanel.add(makeDurationField(), gridLocation(0, 4));
+    	newPanel.add(makeTimeField(), gridLocation(0, 5));
     	
     	return newPanel;
     }
@@ -79,5 +81,37 @@ public class MainScreen {
     	accelerationPanel.add(unitsLabel);
     	
     	return accelerationPanel;
+    }
+    
+    public JPanel makeDurationField() {
+    	JPanel durationPanel = new JPanel();
+    	
+    	JLabel durationLabel = new JLabel("Duration: ");
+    	JTextField durationField = new JTextField(10);
+    	JLabel msLabel =  new JLabel("ms");
+    	
+    	MainScreenController.addEventButtonListener.registerDurationField(durationField);
+    	
+    	durationPanel.add(durationLabel);
+    	durationPanel.add(durationField);
+    	durationPanel.add(msLabel);
+    	
+    	return durationPanel;
+    }
+    
+    public JPanel makeTimeField() {
+    	JPanel timePanel = new JPanel();
+    	
+    	JLabel timeLabel = new JLabel("Time: ");
+    	JTextField timeField = new JTextField(10);
+    	JLabel msLabel = new JLabel("ms");
+    	
+    	MainScreenController.addEventButtonListener.registerTimeField(timeField);
+    	
+    	timePanel.add(timeLabel);
+    	timePanel.add(timeField);
+    	timePanel.add(msLabel);
+    	
+    	return timePanel;
     }
 }
