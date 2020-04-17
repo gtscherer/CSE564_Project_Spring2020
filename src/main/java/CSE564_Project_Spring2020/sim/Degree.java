@@ -65,6 +65,6 @@ public class Degree {
 	
 	@Override
 	public String toString() {
-		return Double.toString(value);
+		return String.format("%.4f", value);
 	}
 }

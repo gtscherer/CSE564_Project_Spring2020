@@ -19,7 +19,7 @@ public class DataScreen {
 	
 	public JDialog buildDialog() {
 		JDialog screen = new JDialog(mainScreen, title);
-		screen.setSize(200, 200);
+		screen.setSize(300, 200);
 		
 		screen.add(buildDataPanel());
 		
