@@ -17,8 +17,19 @@ public class Simulator extends Thread {
 	private WorldEventManager worldEventManager;
 	private boolean isWaiting;
 	private long maxTicks;
+	private Optional<ClockedComponent> controller;
 
 	private Optional<DataListener> worldStateListener;
+	
+	private static final ClockedComponent DEFAULT_CONTROLLER = new ClockedComponent() {
+
+		@Override
+		public void tick() {
+			//Default implementation
+			//Do nothing
+		}
+
+	};
 	
 	public Simulator() {
 		this(Long.MAX_VALUE);
@@ -30,6 +41,12 @@ public class Simulator extends Thread {
 		worldStateListener = Optional.empty();
 		isWaiting = false;
 		maxTicks = _maxTicks;
+		controller = Optional.empty();
+	}
+	
+	public void setController(ClockedComponent _controller) {
+		assert(_controller != null);
+		controller = Optional.of(_controller);
 	}
 	
 	public WorldEventManager getWorldEventManager() {
@@ -98,7 +115,9 @@ public class Simulator extends Thread {
 
 			worldEventManager.tick();
 			gyroAdjuster.tick();
-			// Controller updates here
+
+			controller.orElse(DEFAULT_CONTROLLER).tick();
+
 			rollActuatorAdjuster.tick();
 			pitchActuatorAdjuster.tick();
 			yawActuatorAdjuster.tick();
