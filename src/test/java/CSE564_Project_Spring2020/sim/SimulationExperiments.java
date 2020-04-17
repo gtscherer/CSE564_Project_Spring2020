@@ -2,6 +2,7 @@ package CSE564_Project_Spring2020.sim;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -12,12 +13,29 @@ import CSE564_Project_Spring2020.ui.DataChangeEvent;
 import CSE564_Project_Spring2020.ui.DataType;
 
 class SimulationExperiments {
+	
+	private List<ExperimentWorldData> worldTable;
+	private List<ExperimentGyroData> gyroTable;
 
-	private List<ExperimentWorldData> runExperiment(final long experimentDuration, Optional<List<ExperimentWorldEvent>> eventTable) throws InterruptedException {
+	/**
+	 * Convenience method for running experiments with predefined events.
+	 * 
+	 * @param experimentDuration Maximum runtime of experiment. Directly correlates
+	 *                           to the number of rows output into the tables.
+	 * @param eventTable (Optional) Event tuples that describe when, for how long, and 
+	 * 	                 to what effect the world state should change.
+	 * @throws InterruptedException propagated from Thread.join
+	 */
+	private void runExperiment(final long experimentDuration, Optional<List<ExperimentWorldEvent>> eventTable) throws InterruptedException {
 		Simulator s = new Simulator(experimentDuration);
 		
-		ExperimentDataListener testListener = new ExperimentDataListener();
-		s.setWorldDataListener(testListener);
+		ExperimentWorldDataListener testWorldListener = new ExperimentWorldDataListener();
+		ExperimentGyroDataListener testGyroListener = new ExperimentGyroDataListener();
+		
+		testWorldListener.setGyroDataListener(testGyroListener);
+		
+		s.setWorldDataListener(testWorldListener);
+		s.setGyroscopeDataListener(testGyroListener);
 		
 		eventTable.ifPresent((List<ExperimentWorldEvent> eventTab) -> {
 			eventTab.forEach((ExperimentWorldEvent event) -> {
@@ -34,24 +52,32 @@ class SimulationExperiments {
 		s.start();
 		s.join();
 		
-		testListener.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(experimentDuration)));
+		testWorldListener.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(experimentDuration)));
 		
-		List<ExperimentWorldData> worldTable = testListener.getWorldTable();
+		worldTable = testWorldListener.getTable();
 		worldTable.remove(worldTable.size() - 1);
-
-		return worldTable;
+		
+		gyroTable = testGyroListener.getTable();
+		gyroTable.remove(gyroTable.size() - 1);
 	}
 	
+	
+	/**
+	 * Basic integration test. More involved tests should create
+	 * CSV files from output and be analyzed manually.
+	 * 
+	 * @throws InterruptedException propagated from Thread.join
+	 */
 	@Test
-	void test() throws InterruptedException {
+	void testBasicWorldEvents() throws InterruptedException {
 		List<ExperimentWorldEvent> events = Arrays.asList(
 			new ExperimentWorldEvent(10, 10, 0.1, 0.2, 0.3),
 			new ExperimentWorldEvent(30, 10, 0.3, 0.1, 0.2)
 		);
 		
-		List<ExperimentWorldData> actualData = runExperiment(40l, Optional.of(events));
+		runExperiment(40l, Optional.of(events));
 		
-		List<ExperimentWorldData> expectedData = Arrays.asList(
+		List<ExperimentWorldData> expectedWorldData = Arrays.asList(
 			new ExperimentWorldData(1, 0.0, 0.0, 0.0),
 			new ExperimentWorldData(2, 0.0, 0.0, 0.0),
 			new ExperimentWorldData(3, 0.0, 0.0, 0.0),
@@ -98,7 +124,14 @@ class SimulationExperiments {
 			new ExperimentWorldData(40, 4.0, 3.0, 5.0)		
 		);
 		
-		assertIterableEquals(expectedData, actualData);
+		List<ExperimentGyroData> expectedGyroData = new ArrayList<ExperimentGyroData>();
+		
+		for (int i = 1; i < 41; ++i) {
+			expectedGyroData.add(new ExperimentGyroData(i, 0.0, 0.0, 0.0)); // Updates every 200ms; no data
+		}
+		
+		assertIterableEquals(expectedWorldData, worldTable);
+		assertIterableEquals(expectedGyroData, gyroTable);
 	}
 
 }

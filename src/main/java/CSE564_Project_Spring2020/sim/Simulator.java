@@ -8,9 +8,9 @@ import CSE564_Project_Spring2020.ui.DataListener;
 import CSE564_Project_Spring2020.ui.DataType;
 
 /** 
- * 
- * Work in progress! Do not use yet until missing pieces are added.
- *
+ * Main simulation loop for synchronized components.
+ * Ordering of "ticks" denotes precedence relationships
+ * between components.
  */
 public class Simulator extends Thread {
 	private World world;

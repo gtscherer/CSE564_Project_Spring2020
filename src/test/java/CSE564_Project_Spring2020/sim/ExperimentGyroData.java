@@ -1,16 +1,16 @@
 package CSE564_Project_Spring2020.sim;
 
-public class ExperimentWorldData {
+public class ExperimentGyroData {
 	public long time;
 	public double roll;
 	public double pitch;
 	public double yaw;
 	
-	public ExperimentWorldData() {
-		this(0, 0.0d, 0.0d, 0.0d);
+	public ExperimentGyroData() {
+		this(0l, 0.0d, 0.0d, 0.0d);
 	}
 	
-	public ExperimentWorldData(int _time, double _roll, double _pitch, double _yaw) {
+	public ExperimentGyroData(long _time, double _roll, double _pitch, double _yaw) {
 		time = _time;
 		roll = _roll;
 		pitch = _pitch;
@@ -24,8 +24,8 @@ public class ExperimentWorldData {
 	
 	@Override
 	public boolean equals(Object rhs) {
-		if (rhs.getClass().equals(ExperimentWorldData.class)) {
-			ExperimentWorldData rhsData = ((ExperimentWorldData) rhs);
+		if (rhs.getClass().equals(ExperimentGyroData.class)) {
+			ExperimentGyroData rhsData = ((ExperimentGyroData) rhs);
 			final double epsilon = 0.0001d;
 			return time == rhsData.time
 					&& Math.abs(roll - rhsData.roll) < epsilon
