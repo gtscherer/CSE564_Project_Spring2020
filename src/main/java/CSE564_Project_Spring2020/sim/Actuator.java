@@ -5,22 +5,19 @@ import java.util.Optional;
 public class Actuator implements TimingAdjusted {
 	private Optional<Degree> lastDeltaDeg;
 	private Optional<World> world;
-	private Optional<RotationDirection> direction;
+	private final RotationDirection direction;
 	
-	public Actuator() {
+	public Actuator(RotationDirection _direction) {
+		assert(_direction != null);
+
 		lastDeltaDeg = Optional.empty();
 		world = Optional.empty();
-		direction = Optional.empty();
+		direction = _direction;
 	}
 	
 	public void setWorld(World _world) {
 		assert(_world != null);
 		world = Optional.of(_world);
-	}
-	
-	public void setDirection(RotationDirection _direction) {
-		assert(_direction != null);
-		direction = Optional.of(_direction);
 	}
 	
 	public void rotate(Degree amount) {
@@ -29,21 +26,19 @@ public class Actuator implements TimingAdjusted {
 	}
 
 	@Override
-	public void simTick() {
+	public void adjustedTick() {
 		assert(world.isPresent());
-		assert(direction.isPresent());
 
 		lastDeltaDeg.ifPresent((Degree amount) -> {
-			final RotationDirection axis = direction.get();
 			final World w = world.get();
 
-			if (axis == RotationDirection.ROLL) {
+			if (direction == RotationDirection.ROLL) {
 				w.rollChanged(amount);
 			}
-			else if (axis == RotationDirection.PITCH) {
+			else if (direction == RotationDirection.PITCH) {
 				w.pitchChanged(amount);
 			}
-			else if (axis == RotationDirection.YAW) {
+			else if (direction == RotationDirection.YAW) {
 				w.yawChanged(amount);
 			}
 		});

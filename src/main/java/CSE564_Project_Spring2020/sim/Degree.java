@@ -49,6 +49,10 @@ public class Degree {
 		}
 	}
 	
+	public boolean isZero() {
+		return value == 0.0d;
+	}
+	
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs.getClass() == Degree.class) {

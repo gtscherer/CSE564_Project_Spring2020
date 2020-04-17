@@ -28,7 +28,7 @@ public class TimingAdjuster {
 		++ticks;
 		
 		if (ticks == refreshRate) {
-			adjustedComponent.get().simTick();
+			adjustedComponent.get().adjustedTick();
 			ticks = 0;
 		}
 	}

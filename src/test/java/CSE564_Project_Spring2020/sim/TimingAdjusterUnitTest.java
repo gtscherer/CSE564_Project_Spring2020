@@ -33,23 +33,23 @@ class TimingAdjusterUnitTest {
 		cut.setAdjustedComponent(mockAdjustedComponent);
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(0)).simTick();
+		verify(mockAdjustedComponent, times(0)).adjustedTick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(1)).simTick();
+		verify(mockAdjustedComponent, times(1)).adjustedTick();
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(1)).simTick();
+		verify(mockAdjustedComponent, times(1)).adjustedTick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).simTick();
+		verify(mockAdjustedComponent, times(2)).adjustedTick();
 		
 		cut.setRate(3);
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).simTick();
+		verify(mockAdjustedComponent, times(2)).adjustedTick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).simTick();
+		verify(mockAdjustedComponent, times(2)).adjustedTick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(3)).simTick();
+		verify(mockAdjustedComponent, times(3)).adjustedTick();
 	}
 
 }
