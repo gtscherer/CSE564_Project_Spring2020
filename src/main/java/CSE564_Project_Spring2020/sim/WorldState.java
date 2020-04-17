@@ -7,7 +7,7 @@ public class WorldState {
 		currentDegrees = new Degree();
 	}
 	
-	public void degreeChanged(Degree d_deg) {
+	public void degreeChanged(double d_deg) {
 		currentDegrees.add(d_deg);
 	}
 	

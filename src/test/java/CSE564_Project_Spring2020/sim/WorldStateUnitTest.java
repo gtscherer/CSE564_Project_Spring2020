@@ -12,19 +12,19 @@ class WorldStateUnitTest {
 		
 		assertEquals(0.0d, cut.getCurrentDegrees());
 		
-		cut.degreeChanged(new Degree(4.1d));
+		cut.degreeChanged(4.1d);
 		
 		assertEquals(4.1d, cut.getCurrentDegrees());
 		
-		cut.degreeChanged(new Degree(-2.0d));
+		cut.degreeChanged(-2.0d);
 		
 		assertEquals(2.1d, cut.getCurrentDegrees());
 		
-		cut.degreeChanged(new Degree(361d));
+		cut.degreeChanged(361d);
 		
 		assertEquals(3.1d, cut.getCurrentDegrees());
 		
-		cut.degreeChanged(new Degree(-4.0d));
+		cut.degreeChanged(-4.0d);
 		
 		assertEquals(359.1d, cut.getCurrentDegrees());
 	}

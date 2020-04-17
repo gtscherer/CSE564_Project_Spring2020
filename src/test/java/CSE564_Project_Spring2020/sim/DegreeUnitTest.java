@@ -1,6 +1,7 @@
 package CSE564_Project_Spring2020.sim;
 
 import static CSE564_Project_Spring2020.sim.DegreeAssertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -138,5 +139,12 @@ class DegreeUnitTest {
 		assertEquals(350.0d, cut.plus(-10d));
 		
 		assertEquals(0.0d, cut.plus(-360d));
+	}
+	
+	@Test
+	void testPreconditions() {
+		assertThrows(AssertionError.class, () -> new Degree(Double.POSITIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree(Double.NEGATIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree(Double.NaN));
 	}
 }

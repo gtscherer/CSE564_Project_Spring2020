@@ -1,7 +1,7 @@
 package CSE564_Project_Spring2020.sim;
 
 import static CSE564_Project_Spring2020.sim.DegreeAssertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

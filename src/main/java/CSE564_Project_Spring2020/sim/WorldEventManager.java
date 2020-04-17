@@ -27,33 +27,39 @@ public class WorldEventManager implements ClockedComponent {
 		pitchEventManager.tick();
 		yawEventManager.tick();
 		
-		Degree roll = aggregateEventData(rollEventManager.getActiveEvents());
-		Degree pitch = aggregateEventData(pitchEventManager.getActiveEvents());
-		Degree yaw = aggregateEventData(yawEventManager.getActiveEvents());
+		Double roll = aggregateEventData(rollEventManager.getActiveEvents());
+		Double pitch = aggregateEventData(pitchEventManager.getActiveEvents());
+		Double yaw = aggregateEventData(yawEventManager.getActiveEvents());
 		
-		if (!roll.isZero()) {
+		if (roll != 0.0d) {
 			world.get().rollChanged(roll);
 		}
 		
-		if (!pitch.isZero()) {
+		if (pitch != 0.0d) {
 			world.get().pitchChanged(pitch);
 		}
 		
-		if (!yaw.isZero()) {
+		if (yaw != 0.0d) {
 			world.get().yawChanged(yaw);
 		}
 	}
 	
-	public void addEvent(int startTime, int duration, Degree d_roll, Degree d_pitch, Degree d_yaw) {
+	public void addEvent(
+		int startTime,
+		int duration,
+		double d_roll,
+		double d_pitch,
+		double d_yaw
+	) throws AssertionError {
 		rollEventManager.addEvent(startTime, duration, d_roll);
 		pitchEventManager.addEvent(startTime, duration, d_pitch);
 		yawEventManager.addEvent(startTime, duration, d_yaw);
 	}
 	
-	private Degree aggregateEventData(List<AxisEvent> events) {
-		Optional<Degree> aggregate = events.stream()
-				.map((AxisEvent e) -> e.d_deg)
-				.reduce((Degree lhs, Degree rhs) -> lhs.plus(rhs));
-		return aggregate.orElseGet(() -> new Degree());
+	private Double aggregateEventData(List<AxisEvent> events) {
+		Optional<Double> aggregate = events.stream()
+				.map((AxisEvent e) -> e.getDeltaDegrees())
+				.reduce((Double lhs, Double rhs) -> lhs + rhs);
+		return aggregate.orElseGet(() -> Double.valueOf(0.0d));
 	}
 }

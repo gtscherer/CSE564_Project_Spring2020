@@ -2,12 +2,20 @@ package CSE564_Project_Spring2020.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import org.checkerframework.checker.units.qual.s;
+
+import CSE564_Project_Spring2020.sim.Simulator;
 
 public class MainScreenController {
 	public enum AccelerationType {
@@ -51,6 +59,98 @@ public class MainScreenController {
 		}
 	}
 	
+	static class MainScreenStateListener implements WindowStateListener {
+		private Optional<Simulator> sim;
+		
+		public MainScreenStateListener() {
+			sim = Optional.empty();
+		}
+
+		@Override
+		public void windowStateChanged(WindowEvent e) {
+			if (e.getNewState() == WindowEvent.WINDOW_CLOSED) {
+				sim.ifPresent((Simulator s) -> {
+					s.interrupt();
+				});
+			}
+		}
+		
+		public void registerSimulator(Simulator _sim) {
+			assert(_sim != null);
+			sim = Optional.of(_sim);
+		}
+		
+	}
+	
+	public static final MainScreenStateListener mainScreenStateListener = new MainScreenStateListener();
+
+	static class OpenWorldDataScreenListener implements ActionListener {
+		private Optional<JDialog> worldDataScreen;
+		
+		public OpenWorldDataScreenListener() {
+			worldDataScreen = Optional.empty();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				worldDataScreen.ifPresent((JDialog wds) -> wds.setVisible(true));
+			}
+		}
+		
+		public void registerWorldDataScreen(JDialog _worldDataScreen) {
+			assert(_worldDataScreen != null);
+			worldDataScreen = Optional.of(_worldDataScreen);
+		}
+		
+	}
+	
+	public static final OpenWorldDataScreenListener openWorldDataScreenListener = new OpenWorldDataScreenListener();
+	
+	static class StartStopButtonListener implements ActionListener {
+		private Optional<JButton> startStopButton;
+		private Optional<Simulator> sim;
+		
+		public StartStopButtonListener() {
+			startStopButton = Optional.empty();
+			sim = Optional.empty();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				startStopButton.ifPresent((JButton ssb) -> {
+					if (ssb.getText().contentEquals("Start") || ssb.getText().contentEquals("Resume")) {
+						sim.ifPresent((Simulator s) -> s.unpause());
+						ssb.setText("Pause");
+					}
+					else if (ssb.getText().contentEquals("Pause")) {
+						sim.ifPresent((Simulator s) -> {
+							try {
+								s.pause();
+							} catch (InterruptedException e1) {
+								e1.printStackTrace();
+							}
+						});
+						ssb.setText("Resume");
+					}
+				});
+			}
+		}
+		
+		public void registerStartStopButton(JButton _startStopButton) {
+			assert(_startStopButton != null);
+			startStopButton = Optional.of(_startStopButton);
+		}
+		
+		public void registerSimulator(Simulator _sim) {
+			assert(_sim != null);
+			sim = Optional.of(_sim);
+		}
+	}
+	
+	public static final StartStopButtonListener startStopButtonListener = new StartStopButtonListener();
+	
 	static class AddEventButtonListener implements ActionListener {
 		private JFrame mainScreen;
 		private JTextField[] accelerationFields;
@@ -72,9 +172,16 @@ public class MainScreenController {
 		public void actionPerformed(ActionEvent ev) {
 			if (ev.getID() == ActionEvent.ACTION_PERFORMED) {
 				ArrayList<Optional<Double>> accelerationValues = processAccelerationFields();
+				Optional<Integer> durationValue = processUnsignedIntegerField(durationField);
+				Optional<Integer> timeValue = processUnsignedIntegerField(timeField);
 				
-				if (accelerationValues != null) {
+				if (accelerationValues != null
+						&& durationValue.isPresent()
+						&& timeValue.isPresent()) {
 					setAccelerationValues(accelerationValues);
+					setStartTime(timeValue.get());
+					setDuration(durationValue.get());
+					model.accelerationEventData.sendToEventManager();
 				}
 			}
 		}
@@ -87,7 +194,7 @@ public class MainScreenController {
 					String fieldText = accelerationField.getText();
 					
 					if (!fieldText.isEmpty()) {
-						Double value = parseField(fieldText);
+						Double value = parseDoubleField(fieldText);
 						
 						if (value == null) {
 							return null;
@@ -106,24 +213,34 @@ public class MainScreenController {
 		private void setAccelerationValues(ArrayList<Optional<Double>> accelerationValues) {
 			for (int i = 0; i < 3; ++i) {
 				final int index = i;
-				accelerationValues.get(index).ifPresent((Double value) -> {
-					AccelerationType type = AccelerationType.getType(index);
+				Double value = accelerationValues.get(index).orElse(Double.valueOf(0.0d));
 
-					if (type == AccelerationType.ROLL) {
-						model.accelerationEventData.rollAcceleration = value;
-					}
-					else if (type == AccelerationType.PITCH) {
-						model.accelerationEventData.pitchAcceleration = value;
-					}
-					else if (type == AccelerationType.YAW) {
-						model.accelerationEventData.yawAcceleration = value;
-					}
-					System.out.println(String.format("%s Acceleration entered: %f", type.getText(), value));
-				});
+				AccelerationType type = AccelerationType.getType(index);
+
+				if (type == AccelerationType.ROLL) {
+					model.accelerationEventData.rollAcceleration = value;
+				}
+				else if (type == AccelerationType.PITCH) {
+					model.accelerationEventData.pitchAcceleration = value;
+				}
+				else if (type == AccelerationType.YAW) {
+					model.accelerationEventData.yawAcceleration = value;
+				}
+				System.out.println(String.format("%s Acceleration entered: %f", type.getText(), value));
 			}
 		}
 		
-		private Double parseField(String fieldText) {
+		private void setStartTime(int startTime) {
+			model.accelerationEventData.startTime = startTime;
+			System.out.println(String.format("Start time entered: %d", startTime));
+		}
+		
+		private void setDuration(int duration) {
+			model.accelerationEventData.duration = duration;
+			System.out.println(String.format("Duration entered: %d", duration));
+		}
+		
+		private Double parseDoubleField(String fieldText) {
 			try {
 				Double value = Double.parseDouble(fieldText);
 
@@ -135,6 +252,32 @@ public class MainScreenController {
 				JOptionPane.showMessageDialog(
 					mainScreen,
 					String.format("Invalid number: %s", fieldText),
+					"Number Error!",
+					JOptionPane.ERROR_MESSAGE
+				);
+				
+				return null;
+			}
+		}
+		
+		private Optional<Integer> processUnsignedIntegerField(JTextField integerField) {
+			Integer i = parseUnsignedIntegerField(integerField.getText());
+			
+			return Optional.ofNullable(i);
+		}
+		
+		private Integer parseUnsignedIntegerField(String fieldText) {
+			try {
+				Integer value = Integer.parseUnsignedInt(fieldText);
+
+				return value;
+			}
+			catch (NumberFormatException e) {
+				e.printStackTrace(System.err);
+
+				JOptionPane.showMessageDialog(
+					mainScreen,
+					String.format("Invalid positive integer: %s", fieldText),
 					"Number Error!",
 					JOptionPane.ERROR_MESSAGE
 				);

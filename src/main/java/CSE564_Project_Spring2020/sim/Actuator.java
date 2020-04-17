@@ -3,11 +3,11 @@ package CSE564_Project_Spring2020.sim;
 import java.util.Optional;
 
 public class Actuator implements TimingAdjusted {
-	private Optional<Degree> lastDeltaDeg;
+	private Optional<Double> lastDeltaDeg;
 	private Optional<World> world;
-	private final RotationDirection direction;
+	private final RotationAxis direction;
 	
-	public Actuator(RotationDirection _direction) {
+	public Actuator(RotationAxis _direction) {
 		assert(_direction != null);
 
 		lastDeltaDeg = Optional.empty();
@@ -20,8 +20,10 @@ public class Actuator implements TimingAdjusted {
 		world = Optional.of(_world);
 	}
 	
-	public void rotate(Degree amount) {
+	public void rotate(Double amount) {
 		assert(amount != null);
+		assert(!amount.isInfinite());
+		assert(!amount.isNaN());
 		lastDeltaDeg = Optional.of(amount);
 	}
 
@@ -29,16 +31,16 @@ public class Actuator implements TimingAdjusted {
 	public void adjustedTick() {
 		assert(world.isPresent());
 
-		lastDeltaDeg.ifPresent((Degree amount) -> {
+		lastDeltaDeg.ifPresent((Double amount) -> {
 			final World w = world.get();
 
-			if (direction == RotationDirection.ROLL) {
+			if (direction == RotationAxis.ROLL) {
 				w.rollChanged(amount);
 			}
-			else if (direction == RotationDirection.PITCH) {
+			else if (direction == RotationAxis.PITCH) {
 				w.pitchChanged(amount);
 			}
-			else if (direction == RotationDirection.YAW) {
+			else if (direction == RotationAxis.YAW) {
 				w.yawChanged(amount);
 			}
 		});

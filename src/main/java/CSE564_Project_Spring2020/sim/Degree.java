@@ -8,6 +8,8 @@ public class Degree {
 	}
 	
 	public Degree(double _value) {
+		assert(!Double.isInfinite(_value));
+		assert(!Double.isNaN(_value));
 		value = _value;
 		normalize();
 	}
@@ -59,5 +61,10 @@ public class Degree {
 			return ((Degree)rhs).value == value;
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return Double.toString(value);
 	}
 }

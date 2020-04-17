@@ -23,7 +23,7 @@ public class AxisEventManager implements ClockedComponent {
 		return active;
 	}
 	
-	public void addEvent(int time, int duration, Degree d_deg) {
+	public void addEvent(int time, int duration, double d_deg) {
 		inactive.add(new AxisEvent(time, duration, d_deg));
 	}
 	
@@ -34,7 +34,7 @@ public class AxisEventManager implements ClockedComponent {
 					.filter((AxisEvent e) -> currentTime - (e.startTime + e.duration) < 0)
 					.collect(Collectors.toCollection(() -> new LinkedList<AxisEvent>()));
 		
-		while (!inactive.isEmpty() && inactive.peek().startTime == currentTime) {
+		while (!inactive.isEmpty() && inactive.peek().startTime <= currentTime) {
 			active.add(inactive.poll());
 		}
 	}
