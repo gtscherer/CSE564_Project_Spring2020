@@ -4,5 +4,8 @@ public enum DataType {
 	WorldRoll,
 	WorldPitch,
 	WorldYaw,
-	WorldTime
+	WorldTime,
+	GyroRoll,
+	GyroPitch,
+	GyroYaw
 }

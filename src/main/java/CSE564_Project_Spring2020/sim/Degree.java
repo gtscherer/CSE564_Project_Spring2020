@@ -55,10 +55,15 @@ public class Degree {
 		return value == 0.0d;
 	}
 	
+	public Degree copy() {
+		return new Degree(value);
+	}
+	
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs.getClass() == Degree.class) {
-			return ((Degree)rhs).value == value;
+			final double epsilon = 0.0001d;
+			return Math.abs(((Degree)rhs).value - value) < epsilon;
 		}
 		return false;
 	}

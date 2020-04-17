@@ -14,6 +14,7 @@ import javax.swing.JTextField;
 
 import CSE564_Project_Spring2020.sim.Simulator;
 
+
 public class MainScreen {
 	private MainScreenModel model;
 	
@@ -26,6 +27,7 @@ public class MainScreen {
         Simulator s = new Simulator();
 
         s.setWorldDataListener(DataScreenController.worldDataListener);
+        s.setGyroscopeDataListener(DataScreenController.gyroDataListener);
         MainScreenController.mainScreenStateListener.registerSimulator(s);
         MainScreenController.startStopButtonListener.registerSimulator(s);
 
@@ -107,12 +109,13 @@ public class MainScreen {
     public JPanel buildControlPanel() {
     	JPanel newPanel = new JPanel(new GridBagLayout());
     	
-    	newPanel.add(makeTimeField(), gridLocation(0, 0));
-    	newPanel.add(makeDurationField(), gridLocation(0, 1));
-    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.ROLL), gridLocation(0, 2));
-    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.PITCH), gridLocation(0, 3));
-    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.YAW), gridLocation(0, 4));
-    	newPanel.add(makeAddEventButton(), gridLocation(0, 5));
+    	newPanel.add(new JLabel("Define new event:"), gridLocation(0, 0));
+    	newPanel.add(makeTimeField(), gridLocation(0, 1));
+    	newPanel.add(makeDurationField(), gridLocation(0, 2));
+    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.ROLL), gridLocation(0, 3));
+    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.PITCH), gridLocation(0, 4));
+    	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.YAW), gridLocation(0, 5));
+    	newPanel.add(makeAddEventButton(), gridLocation(0, 6));
 
     	newPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     	

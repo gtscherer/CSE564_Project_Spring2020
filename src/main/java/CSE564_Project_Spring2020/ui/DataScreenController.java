@@ -41,6 +41,39 @@ public class DataScreenController {
 			yawLabel = _yawLabel;
 		}
 	}
-	
+
 	public static final WorldDataListener worldDataListener = new WorldDataListener();
+
+	static class GyroDataListener implements DataListener {
+		private JLabel rollLabel, pitchLabel, yawLabel;
+
+		@Override
+		public void dataChanged(DataChangeEvent e) {
+			final DataType type = e.getType();
+
+			if (type == DataType.GyroRoll) {
+				rollLabel.setText(e.getValue());
+			}
+			else if (type == DataType.GyroPitch) {
+				pitchLabel.setText(e.getValue());
+			}
+			else if (type == DataType.GyroYaw) {
+				yawLabel.setText(e.getValue());
+			}
+		}
+		
+		public void registerRollLabel(JLabel _rollLabel) {
+			rollLabel = _rollLabel;
+		}
+		
+		public void registerPitchLabel(JLabel _pitchLabel) {
+			pitchLabel = _pitchLabel;
+		}
+		
+		public void registerYawLabel(JLabel _yawLabel) {
+			yawLabel = _yawLabel;
+		}
+	}
+	
+	public static final GyroDataListener gyroDataListener = new GyroDataListener();
 }

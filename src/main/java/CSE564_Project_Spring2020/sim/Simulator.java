@@ -20,6 +20,7 @@ public class Simulator extends Thread {
 	private Optional<ClockedComponent> controller;
 
 	private Optional<DataListener> worldStateListener;
+	private Optional<DataListener> gyroscopeDataListener;
 	
 	private static final ClockedComponent DEFAULT_CONTROLLER = new ClockedComponent() {
 
@@ -39,6 +40,7 @@ public class Simulator extends Thread {
 		world = new World();
 		worldEventManager = new WorldEventManager();
 		worldStateListener = Optional.empty();
+		gyroscopeDataListener = Optional.empty();
 		isWaiting = false;
 		maxTicks = _maxTicks;
 		controller = Optional.empty();
@@ -59,9 +61,16 @@ public class Simulator extends Thread {
 		world.setStateListener(l);
 	}
 	
+	public void setGyroscopeDataListener(DataListener l) {
+		assert(l != null);
+		gyroscopeDataListener = Optional.of(l);
+	}
+	
 	@Override
 	public void run() {
 		Gyroscope gyroscope = new Gyroscope();
+		gyroscopeDataListener.ifPresent((DataListener l) -> gyroscope.setGyroscopeStateListener(l));
+
 		Actuator rollActuator = new Actuator(RotationAxis.ROLL);
 		Actuator pitchActuator = new Actuator(RotationAxis.PITCH);
 		Actuator yawActuator = new Actuator(RotationAxis.YAW);

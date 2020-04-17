@@ -1,8 +1,10 @@
 package CSE564_Project_Spring2020.ui;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,25 +21,45 @@ public class DataScreen {
 	
 	public JDialog buildDialog() {
 		JDialog screen = new JDialog(mainScreen, title);
-		screen.setSize(300, 200);
+		screen.setSize(300, 400);
 		
-		screen.add(buildDataPanel());
+		JPanel screenPanel = new JPanel(new GridBagLayout());
+		screenPanel.add(buildWorldDataPanel(), gridLocation(0, 0));
+		screenPanel.add(buildGyroscopePanel(), gridLocation(0, 1));
+		
+		screen.add(screenPanel);
 		
 		return screen;
 	}
 	
-	private JPanel buildDataPanel() {
+	private JPanel buildWorldDataPanel() {
 		JPanel panel = new JPanel(new GridBagLayout());
 		
-		panel.add(makeDataDisplayField("Current Time", "ms", DataType.WorldTime), gridLocation(0, 0));
-		panel.add(makeDataDisplayField("Roll", "deg", DataType.WorldRoll), gridLocation(0, 1));
-		panel.add(makeDataDisplayField("Pitch", "deg", DataType.WorldPitch), gridLocation(0, 2));
-		panel.add(makeDataDisplayField("Yaw", "deg", DataType.WorldYaw), gridLocation(0, 3));
+		panel.add(new JLabel("World State"), gridLocation(0, 0));
+		panel.add(makeDataDisplayField("Current Time", "ms", DataType.WorldTime), gridLocation(0, 1));
+		panel.add(makeDataDisplayField("Roll", "deg", DataType.WorldRoll), gridLocation(0, 2));
+		panel.add(makeDataDisplayField("Pitch", "deg", DataType.WorldPitch), gridLocation(0, 3));
+		panel.add(makeDataDisplayField("Yaw", "deg", DataType.WorldYaw), gridLocation(0, 4));
+
+		panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		return panel;
 	}
 	
-    public JPanel makeDataDisplayField(final String name, final String units, final DataType type) {
+	private JPanel buildGyroscopePanel() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		
+		panel.add(new JLabel("Gyroscope Readings"), gridLocation(0, 0));
+		panel.add(makeDataDisplayField("Roll", "deg", DataType.GyroRoll), gridLocation(0, 1));
+		panel.add(makeDataDisplayField("Pitch", "deg", DataType.GyroPitch), gridLocation(0, 2));
+		panel.add(makeDataDisplayField("Yaw", "deg", DataType.GyroYaw), gridLocation(0, 3));
+		
+		panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+		return panel;
+	}
+	
+    private JPanel makeDataDisplayField(final String name, final String units, final DataType type) {
     	JPanel displayField = new JPanel();
     	
     	JLabel fieldName = new JLabel(String.format("%s: ", name));
@@ -55,6 +77,15 @@ public class DataScreen {
     	}
     	else if (type == DataType.WorldYaw) {
     		DataScreenController.worldDataListener.registerYawLabel(data);
+    	}
+    	else if (type == DataType.GyroRoll) {
+    		DataScreenController.gyroDataListener.registerRollLabel(data);
+    	}    	
+    	else if (type == DataType.GyroPitch) {
+    		DataScreenController.gyroDataListener.registerPitchLabel(data);
+    	}
+    	else if (type == DataType.GyroYaw) {
+    		DataScreenController.gyroDataListener.registerYawLabel(data);
     	}
     	
     	displayField.add(fieldName);

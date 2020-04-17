@@ -13,8 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.checkerframework.checker.units.qual.s;
-
 import CSE564_Project_Spring2020.sim.Simulator;
 
 public class MainScreenController {
