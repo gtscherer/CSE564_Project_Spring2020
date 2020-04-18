@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import CSE564_Project_Spring2020.sim.Controller;
+import CSE564_Project_Spring2020.sim.ControllerFactory;
+import CSE564_Project_Spring2020.sim.ControllerType;
 import CSE564_Project_Spring2020.sim.Simulator;
 
 public class MainScreenController {
@@ -108,16 +112,29 @@ public class MainScreenController {
 	static class StartStopButtonListener implements ActionListener {
 		private Optional<JButton> startStopButton;
 		private Optional<Simulator> sim;
+		private Optional<JComboBox<ControllerType>> controllerPicker;
 		
 		public StartStopButtonListener() {
 			startStopButton = Optional.empty();
 			sim = Optional.empty();
+			controllerPicker = Optional.empty();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
 				startStopButton.ifPresent((JButton ssb) -> {
+					if(ssb.getText().contentEquals("Start")) {
+						controllerPicker.ifPresent((JComboBox<ControllerType> b) -> b.setEnabled(false));
+				        ControllerType controllerType = getControllerType();
+				        
+				        if (controllerType != ControllerType.NoController) {
+				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setRollController(c)));
+				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setPitchController(c)));
+				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setYawController(c)));
+				        }
+					}
+					
 					if (ssb.getText().contentEquals("Start") || ssb.getText().contentEquals("Resume")) {
 						sim.ifPresent((Simulator s) -> s.unpause());
 						ssb.setText("Pause");
@@ -144,6 +161,23 @@ public class MainScreenController {
 		public void registerSimulator(Simulator _sim) {
 			assert(_sim != null);
 			sim = Optional.of(_sim);
+		}
+		
+		public void registerControllerPicker(JComboBox<ControllerType> _controllerPicker) {
+			assert(_controllerPicker != null);
+			
+			controllerPicker = Optional.of(_controllerPicker);
+		}
+		
+		public ControllerType getControllerType() {
+			if (controllerPicker.isPresent()) {
+				int index = controllerPicker.get().getSelectedIndex();
+				
+				if (index > -1) {
+					return (ControllerType) controllerPicker.get().getSelectedItem();
+				}
+			}
+			return ControllerType.NoController;
 		}
 	}
 	

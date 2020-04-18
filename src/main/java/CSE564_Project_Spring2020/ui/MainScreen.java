@@ -6,14 +6,16 @@ import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import CSE564_Project_Spring2020.sim.IncrementalController;
-import CSE564_Project_Spring2020.sim.SimpleController;
+import CSE564_Project_Spring2020.sim.Controller;
+import CSE564_Project_Spring2020.sim.ControllerFactory;
+import CSE564_Project_Spring2020.sim.ControllerType;
 import CSE564_Project_Spring2020.sim.Simulator;
 
 
@@ -27,10 +29,6 @@ public class MainScreen {
         mainScreenFrame.setVisible(true);
         
         Simulator s = new Simulator();
-        
-        s.setRollController(new IncrementalController());
-        s.setPitchController(new IncrementalController());
-        s.setYawController(new IncrementalController());
         
         s.setWorldDataListener(DataScreenController.worldDataListener);
         s.setGyroscopeDataListener(DataScreenController.gyroDataListener);
@@ -61,7 +59,7 @@ public class MainScreen {
         
         JPanel framePanel = new JPanel(new GridBagLayout());
         framePanel.add(buildSimControlPanel(), gridLocation(0, 0));
-        framePanel.add(buildControlPanel(), gridLocation(0, 1));
+        framePanel.add(buildEventControlPanel(), gridLocation(0, 1));
         framePanel.add(buildReopenDataScreenPanel(), gridLocation(0, 2));
         newFrame.add(framePanel);
         
@@ -81,40 +79,16 @@ public class MainScreen {
     	worldDataDialog.setVisible(true);
     }
     
-    public JPanel buildReopenDataScreenPanel() {
-    	JPanel newPanel = new JPanel(new GridBagLayout());
-    	
-    	newPanel.add(makeReopenWorldDataScreenButton(), gridLocation(0, 0));
-    	
-    	return newPanel;
-    }
-    
-    public JButton makeReopenWorldDataScreenButton() {
-    	JButton reopenWorldDataScreenButton = new JButton("Reopen World View");
-    	
-    	reopenWorldDataScreenButton.addActionListener(MainScreenController.openWorldDataScreenListener);
-    	
-    	return reopenWorldDataScreenButton;
-    }
-    
     public JPanel buildSimControlPanel() {
     	JPanel newPanel = new JPanel(new GridBagLayout());
     	
-    	newPanel.add(makeStartStopButton(), gridLocation(0, 0));
+    	newPanel.add(makeControllerPicker(), gridLocation(0, 0));
+    	newPanel.add(makeStartStopButton(), gridLocation(0, 1));
     	
     	return newPanel;
     }
     
-    public JButton makeStartStopButton() {
-    	JButton startStopButton = new JButton("Start");
-    	
-    	startStopButton.addActionListener(MainScreenController.startStopButtonListener);
-    	MainScreenController.startStopButtonListener.registerStartStopButton(startStopButton);
-    	
-    	return startStopButton;
-    }
-    
-    public JPanel buildControlPanel() {
+    public JPanel buildEventControlPanel() {
     	JPanel newPanel = new JPanel(new GridBagLayout());
     	
     	newPanel.add(new JLabel("Define new event"), gridLocation(0, 0));
@@ -137,6 +111,29 @@ public class MainScreen {
     	newConstraint.gridy = y;
     	
     	return newConstraint;
+    }
+    
+    public JPanel makeControllerPicker() {
+    	JPanel newPanel = new JPanel();
+    	
+    	JLabel pickerLabel = new JLabel("Choose controller:");
+    	JComboBox<ControllerType> controllerPicker = new JComboBox<ControllerType>(ControllerType.values());
+    	
+    	newPanel.add(pickerLabel);
+    	newPanel.add(controllerPicker);
+    	
+    	MainScreenController.startStopButtonListener.registerControllerPicker(controllerPicker);
+
+    	return newPanel;
+    }
+    
+    public JButton makeStartStopButton() {
+    	JButton startStopButton = new JButton("Start");
+    	
+    	startStopButton.addActionListener(MainScreenController.startStopButtonListener);
+    	MainScreenController.startStopButtonListener.registerStartStopButton(startStopButton);
+    	
+    	return startStopButton;
     }
     
     public JButton makeAddEventButton() {
@@ -193,5 +190,21 @@ public class MainScreen {
     	timePanel.add(msLabel);
     	
     	return timePanel;
+    }
+    
+    public JPanel buildReopenDataScreenPanel() {
+    	JPanel newPanel = new JPanel(new GridBagLayout());
+    	
+    	newPanel.add(makeReopenWorldDataScreenButton(), gridLocation(0, 0));
+    	
+    	return newPanel;
+    }
+    
+    public JButton makeReopenWorldDataScreenButton() {
+    	JButton reopenWorldDataScreenButton = new JButton("Reopen World View");
+    	
+    	reopenWorldDataScreenButton.addActionListener(MainScreenController.openWorldDataScreenListener);
+    	
+    	return reopenWorldDataScreenButton;
     }
 }
