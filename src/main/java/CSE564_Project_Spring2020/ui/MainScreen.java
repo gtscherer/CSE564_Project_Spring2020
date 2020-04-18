@@ -27,7 +27,9 @@ public class MainScreen {
         
         Simulator s = new Simulator();
         
-        s.setController(new SimpleController());
+        s.setRollController(new SimpleController());
+        s.setPitchController(new SimpleController());
+        s.setYawController(new SimpleController());
         
         s.setWorldDataListener(DataScreenController.worldDataListener);
         s.setGyroscopeDataListener(DataScreenController.gyroDataListener);

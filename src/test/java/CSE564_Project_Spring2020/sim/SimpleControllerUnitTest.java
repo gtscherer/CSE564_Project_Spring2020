@@ -27,9 +27,7 @@ class SimpleControllerUnitTest {
 		when(mockGyroscope.getPitch()).thenReturn(new Degree());
 		when(mockGyroscope.getYaw()).thenReturn(new Degree());
 		
-		cut.setRollActuator(mockRollActuator);
-		cut.setPitchActuator(mockPitchActuator);
-		cut.setYawActuator(mockYawActuator);
+		cut.setActuator(RotationAxis.ROLL, mockRollActuator);
 		
 		cut.tick();
 		
@@ -44,15 +42,31 @@ class SimpleControllerUnitTest {
 		cut.tick();
 		
 		verify(mockRollActuator, times(1)).rotate(Double.valueOf(-20d));
-		verify(mockPitchActuator, times(1)).rotate(Double.valueOf(-140d));
-		verify(mockYawActuator, times(1)).rotate(Double.valueOf(-260d));
+		verify(mockPitchActuator, never()).rotate(any());
+		verify(mockYawActuator, never()).rotate(any());
+
 		
 		when(mockGyroscope.getRoll()).thenReturn(new Degree());
-		when(mockGyroscope.getPitch()).thenReturn(new Degree());
-		when(mockGyroscope.getYaw()).thenReturn(new Degree());
 		
 		verify(mockRollActuator, times(1)).rotate(any());
+		verify(mockPitchActuator, never()).rotate(any());
+		verify(mockYawActuator, never()).rotate(any());
+		
+		cut.setActuator(RotationAxis.PITCH, mockPitchActuator);
+		
+		cut.tick();
+		
+		verify(mockRollActuator, times(1)).rotate(any());
+		verify(mockPitchActuator, times(1)).rotate(Double.valueOf(-140d));
+		verify(mockYawActuator, never()).rotate(any());
+
+		cut.setActuator(RotationAxis.YAW, mockYawActuator);
+		
+		cut.tick();
+
+		verify(mockRollActuator, times(1)).rotate(any());
 		verify(mockPitchActuator, times(1)).rotate(any());
+		verify(mockYawActuator, times(1)).rotate(Double.valueOf(-260d));
 		verify(mockYawActuator, times(1)).rotate(any());
 	}
 		
@@ -61,9 +75,8 @@ class SimpleControllerUnitTest {
 		SimpleController cut = new SimpleController();
 
 		assertThrows(AssertionError.class, () -> cut.setGyroscope(null));
-		assertThrows(AssertionError.class, () -> cut.setRollActuator(null));
-		assertThrows(AssertionError.class, () -> cut.setPitchActuator(null));
-		assertThrows(AssertionError.class, () -> cut.setYawActuator(null));
+		assertThrows(AssertionError.class, () -> cut.setActuator(RotationAxis.ROLL, null));
+		assertThrows(AssertionError.class, () -> cut.setActuator(null, mock(Actuator.class)));
 	}
 
 }

@@ -2,35 +2,35 @@ package CSE564_Project_Spring2020.sim;
 
 public class SimpleController implements Controller {
 	private Gyroscope gyro;
-	private Actuator rollActuator, pitchActuator, yawActuator;
+	private Actuator actuator;
+	private RotationAxis axis;
 	
 	public SimpleController() {
 		gyro = null;
-		rollActuator = null;
-		pitchActuator = null;
-		yawActuator = null;
+		actuator = null;
+		axis = null;
 	}
 	
 	@Override
 	public void tick() {
 		assert(gyro != null);
-		assert(rollActuator != null);
-		assert(pitchActuator != null);
-		assert(yawActuator != null);
+		assert(actuator != null);
+		assert(axis != null);
 		
-		Degree roll = gyro.getRoll();
-		if (!roll.isZero()) {
-			rollActuator.rotate(-1 * roll.getValue());
+		Degree deg = new Degree();
+		
+		if (axis == RotationAxis.ROLL) {
+			deg = gyro.getRoll();
+		}
+		else if (axis == RotationAxis.PITCH) {
+			deg = gyro.getPitch();
+		}
+		else if (axis == RotationAxis.YAW) {
+			deg = gyro.getYaw();
 		}
 		
-		Degree pitch = gyro.getPitch();
-		if (!pitch.isZero()) {
-			pitchActuator.rotate(-1 * pitch.getValue());
-		}
-		
-		Degree yaw = gyro.getYaw();
-		if (!yaw.isZero()) {
-			yawActuator.rotate(-1 * yaw.getValue());
+		if (!deg.isZero()) {
+			actuator.rotate(-1 * deg.getValue());
 		}
 	}
 
@@ -41,21 +41,10 @@ public class SimpleController implements Controller {
 	}
 
 	@Override
-	public void setRollActuator(Actuator _rollActuator) {
-		assert(_rollActuator != null);
-		rollActuator = _rollActuator;
+	public void setActuator(RotationAxis _axis, Actuator _actuator) {
+		assert(_actuator != null);
+		assert(_axis != null);
+		actuator = _actuator;
+		axis = _axis;
 	}
-
-	@Override
-	public void setPitchActuator(Actuator _pitchActuator) {
-		assert(_pitchActuator != null);
-		pitchActuator = _pitchActuator;
-	}
-
-	@Override
-	public void setYawActuator(Actuator _yawActuator) {
-		assert(_yawActuator != null);
-		yawActuator = _yawActuator;
-	}
-
 }
