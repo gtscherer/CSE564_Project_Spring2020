@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import CSE564_Project_Spring2020.sim.IncrementalController;
 import CSE564_Project_Spring2020.sim.SimpleController;
 import CSE564_Project_Spring2020.sim.Simulator;
 
@@ -27,9 +28,9 @@ public class MainScreen {
         
         Simulator s = new Simulator();
         
-        s.setRollController(new SimpleController());
-        s.setPitchController(new SimpleController());
-        s.setYawController(new SimpleController());
+        s.setRollController(new IncrementalController());
+        s.setPitchController(new IncrementalController());
+        s.setYawController(new IncrementalController());
         
         s.setWorldDataListener(DataScreenController.worldDataListener);
         s.setGyroscopeDataListener(DataScreenController.gyroDataListener);
