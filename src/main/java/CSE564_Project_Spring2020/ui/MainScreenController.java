@@ -128,7 +128,7 @@ public class MainScreenController {
 						controllerPicker.ifPresent((JComboBox<ControllerType> b) -> b.setEnabled(false));
 				        ControllerType controllerType = getControllerType();
 				        
-				        if (controllerType != ControllerType.NoController) {
+				        if (controllerType != ControllerType.None) {
 				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setRollController(c)));
 				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setPitchController(c)));
 				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setYawController(c)));
@@ -177,7 +177,7 @@ public class MainScreenController {
 					return (ControllerType) controllerPicker.get().getSelectedItem();
 				}
 			}
-			return ControllerType.NoController;
+			return ControllerType.None;
 		}
 	}
 	
