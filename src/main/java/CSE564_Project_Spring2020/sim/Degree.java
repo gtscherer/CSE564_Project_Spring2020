@@ -2,6 +2,8 @@ package CSE564_Project_Spring2020.sim;
 
 public class Degree {
 	private double value;
+
+	static final double epsilon = 0.0001d;
 	
 	public Degree() {
 		value = 0.0d;
@@ -52,7 +54,7 @@ public class Degree {
 	}
 	
 	public boolean isZero() {
-		return value == 0.0d;
+		return Math.abs(value - 0.0d) < epsilon;
 	}
 	
 	public Degree copy() {
@@ -62,7 +64,6 @@ public class Degree {
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs.getClass() == Degree.class) {
-			final double epsilon = 0.0001d;
 			return Math.abs(((Degree)rhs).value - value) < epsilon;
 		}
 		return false;

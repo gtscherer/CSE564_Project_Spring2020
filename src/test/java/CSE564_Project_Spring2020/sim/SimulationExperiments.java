@@ -9,13 +9,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import CSE564_Project_Spring2020.ui.DataChangeEvent;
-import CSE564_Project_Spring2020.ui.DataType;
-
 class SimulationExperiments {
 	
 	private List<ExperimentWorldData> worldTable;
 	private List<ExperimentGyroData> gyroTable;
+	private List<ExperimentActuatorData> actuatorTable;
 
 	/**
 	 * Convenience method for running experiments with predefined events.
@@ -31,11 +29,14 @@ class SimulationExperiments {
 		
 		ExperimentWorldDataListener testWorldListener = new ExperimentWorldDataListener();
 		ExperimentGyroDataListener testGyroListener = new ExperimentGyroDataListener();
+		ExperimentActuatorDataListener testActuatorListener = new ExperimentActuatorDataListener();
 		
 		testWorldListener.setGyroDataListener(testGyroListener);
+		testWorldListener.setActuatorDataListener(testActuatorListener);
 		
 		s.setWorldDataListener(testWorldListener);
 		s.setGyroscopeDataListener(testGyroListener);
+		s.setActuatorDataListener(testActuatorListener);
 		
 		eventTable.ifPresent((List<ExperimentWorldEvent> eventTab) -> {
 			eventTab.forEach((ExperimentWorldEvent event) -> {
@@ -59,6 +60,9 @@ class SimulationExperiments {
 		
 		gyroTable = testGyroListener.getTable();
 		gyroTable.remove(gyroTable.size() - 1);
+		
+		actuatorTable = testActuatorListener.getTable();
+		actuatorTable.remove(actuatorTable.size() - 1);
 	}
 	
 	
@@ -130,8 +134,14 @@ class SimulationExperiments {
 			expectedGyroData.add(new ExperimentGyroData(i, 0.0, 0.0, 0.0)); // Updates every 200ms; no data
 		}
 		
+		List<ExperimentActuatorData> expectedActuatorData = new ArrayList<ExperimentActuatorData>();
+		for (int i = 1; i < 41; ++i) {
+			expectedActuatorData.add(new ExperimentActuatorData(i, 0.0, 0.0, 0.0)); // Updates every 200ms; no data
+		}
+
 		assertIterableEquals(expectedWorldData, worldTable);
 		assertIterableEquals(expectedGyroData, gyroTable);
+		assertIterableEquals(expectedActuatorData, actuatorTable);
 	}
 
 }

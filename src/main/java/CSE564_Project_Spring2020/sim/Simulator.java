@@ -3,10 +3,6 @@ package CSE564_Project_Spring2020.sim;
 import java.time.Clock;
 import java.util.Optional;
 
-import CSE564_Project_Spring2020.ui.DataChangeEvent;
-import CSE564_Project_Spring2020.ui.DataListener;
-import CSE564_Project_Spring2020.ui.DataType;
-
 /** 
  * Main simulation loop for synchronized components.
  * Ordering of "ticks" denotes precedence relationships
@@ -17,20 +13,11 @@ public class Simulator extends Thread {
 	private WorldEventManager worldEventManager;
 	private boolean isWaiting;
 	private long maxTicks;
-	private Optional<ClockedComponent> controller;
+	private Optional<Controller> controller;
 
 	private Optional<DataListener> worldStateListener;
 	private Optional<DataListener> gyroscopeDataListener;
-	
-	private static final ClockedComponent DEFAULT_CONTROLLER = new ClockedComponent() {
-
-		@Override
-		public void tick() {
-			//Default implementation
-			//Do nothing
-		}
-
-	};
+	private Optional<DataListener> actuatorDataListener;
 	
 	public Simulator() {
 		this(Long.MAX_VALUE);
@@ -39,14 +26,17 @@ public class Simulator extends Thread {
 	public Simulator(long _maxTicks) {
 		world = new World();
 		worldEventManager = new WorldEventManager();
-		worldStateListener = Optional.empty();
-		gyroscopeDataListener = Optional.empty();
+
 		isWaiting = false;
 		maxTicks = _maxTicks;
 		controller = Optional.empty();
+		
+		worldStateListener = Optional.empty();
+		gyroscopeDataListener = Optional.empty();
+		actuatorDataListener = Optional.empty();
 	}
 	
-	public void setController(ClockedComponent _controller) {
+	public void setController(Controller _controller) {
 		assert(_controller != null);
 		controller = Optional.of(_controller);
 	}
@@ -66,6 +56,11 @@ public class Simulator extends Thread {
 		gyroscopeDataListener = Optional.of(l);
 	}
 	
+	public void setActuatorDataListener(DataListener l) {
+		assert(l != null);
+		actuatorDataListener = Optional.of(l);
+	}
+	
 	@Override
 	public void run() {
 		Gyroscope gyroscope = new Gyroscope();
@@ -74,6 +69,19 @@ public class Simulator extends Thread {
 		Actuator rollActuator = new Actuator(RotationAxis.ROLL);
 		Actuator pitchActuator = new Actuator(RotationAxis.PITCH);
 		Actuator yawActuator = new Actuator(RotationAxis.YAW);
+		
+		actuatorDataListener.ifPresent((DataListener l) -> {
+			rollActuator.setActuatorListener(l);
+			pitchActuator.setActuatorListener(l);
+			yawActuator.setActuatorListener(l);
+		});
+
+		controller.ifPresent((Controller c) -> {
+			c.setGyroscope(gyroscope);
+			c.setRollActuator(rollActuator);
+			c.setPitchActuator(pitchActuator);
+			c.setYawActuator(yawActuator);
+		});
 		
 		TimingAdjuster gyroAdjuster = new TimingAdjuster();
 		TimingAdjuster rollActuatorAdjuster = new TimingAdjuster();
@@ -125,7 +133,7 @@ public class Simulator extends Thread {
 			worldEventManager.tick();
 			gyroAdjuster.tick();
 
-			controller.orElse(DEFAULT_CONTROLLER).tick();
+			controller.ifPresent((Controller c) -> c.tick());
 
 			rollActuatorAdjuster.tick();
 			pitchActuatorAdjuster.tick();

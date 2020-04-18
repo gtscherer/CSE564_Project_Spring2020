@@ -2,6 +2,10 @@ package CSE564_Project_Spring2020.ui;
 
 import javax.swing.JLabel;
 
+import CSE564_Project_Spring2020.sim.DataChangeEvent;
+import CSE564_Project_Spring2020.sim.DataListener;
+import CSE564_Project_Spring2020.sim.DataType;
+
 public class DataScreenController {
 	
 	static class WorldDataListener implements DataListener {
@@ -76,4 +80,37 @@ public class DataScreenController {
 	}
 	
 	public static final GyroDataListener gyroDataListener = new GyroDataListener();
+	
+	static class ActuatorDataListener implements DataListener {
+		private JLabel rollLabel, pitchLabel, yawLabel;
+
+		@Override
+		public void dataChanged(DataChangeEvent e) {
+			final DataType type = e.getType();
+
+			if (type == DataType.ActuatorRoll) {
+				rollLabel.setText(e.getValue());
+			}
+			else if (type == DataType.ActuatorPitch) {
+				pitchLabel.setText(e.getValue());
+			}
+			else if (type == DataType.ActuatorYaw) {
+				yawLabel.setText(e.getValue());
+			}
+		}
+		
+		public void registerRollLabel(JLabel _rollLabel) {
+			rollLabel = _rollLabel;
+		}
+		
+		public void registerPitchLabel(JLabel _pitchLabel) {
+			pitchLabel = _pitchLabel;
+		}
+		
+		public void registerYawLabel(JLabel _yawLabel) {
+			yawLabel = _yawLabel;
+		}
+	}
+	
+	public static final ActuatorDataListener actuatorDataListener = new ActuatorDataListener();
 }

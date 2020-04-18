@@ -2,11 +2,7 @@ package CSE564_Project_Spring2020.sim;
 
 import java.util.Optional;
 
-import CSE564_Project_Spring2020.ui.DataChangeEvent;
-import CSE564_Project_Spring2020.ui.DataListener;
-import CSE564_Project_Spring2020.ui.DataType;
-
-public class Gyroscope implements TimingAdjusted {
+public class Gyroscope implements ClockedComponent {
 	private Optional<Degree> prevRoll, prevPitch, prevYaw;
 	private Optional<World> world;
 	
@@ -27,24 +23,21 @@ public class Gyroscope implements TimingAdjusted {
 	}
 
 	@Override
-	public void adjustedTick() {
+	public void tick() {
 		assert(world.isPresent());
 		refresh();
 	}
 	
 	public Degree getRoll() {
-		assert(prevRoll.isPresent());
-		return prevRoll.get();
+		return prevRoll.orElse(new Degree());
 	}
 	
 	public Degree getPitch() {
-		assert(prevPitch.isPresent());
-		return prevPitch.get();
+		return prevPitch.orElse(new Degree());
 	}
 	
 	public Degree getYaw() {
-		assert(prevYaw.isPresent());
-		return prevYaw.get();
+		return prevYaw.orElse(new Degree());
 	}
 	
 	public void setGyroscopeStateListener(DataListener l) {

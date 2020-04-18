@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import CSE564_Project_Spring2020.sim.SimpleController;
 import CSE564_Project_Spring2020.sim.Simulator;
 
 
@@ -25,9 +26,13 @@ public class MainScreen {
         mainScreenFrame.setVisible(true);
         
         Simulator s = new Simulator();
-
+        
+        s.setController(new SimpleController());
+        
         s.setWorldDataListener(DataScreenController.worldDataListener);
         s.setGyroscopeDataListener(DataScreenController.gyroDataListener);
+        s.setActuatorDataListener(DataScreenController.actuatorDataListener);
+        
         MainScreenController.mainScreenStateListener.registerSimulator(s);
         MainScreenController.startStopButtonListener.registerSimulator(s);
 
@@ -109,7 +114,7 @@ public class MainScreen {
     public JPanel buildControlPanel() {
     	JPanel newPanel = new JPanel(new GridBagLayout());
     	
-    	newPanel.add(new JLabel("Define new event:"), gridLocation(0, 0));
+    	newPanel.add(new JLabel("Define new event"), gridLocation(0, 0));
     	newPanel.add(makeTimeField(), gridLocation(0, 1));
     	newPanel.add(makeDurationField(), gridLocation(0, 2));
     	newPanel.add(makeAccelerationField(MainScreenController.AccelerationType.ROLL), gridLocation(0, 3));

@@ -27,7 +27,7 @@ class TimingAdjusterUnitTest {
 		
 		assertThrows(AssertionError.class, () -> { cut.setAdjustedComponent(null); });
 		
-		TimingAdjusted mockAdjustedComponent = mock(TimingAdjusted.class);
+		ClockedComponent mockAdjustedComponent = mock(ClockedComponent.class);
 		
 		assertThrows(AssertionError.class, () -> { cut.tick(); });
 		cut.setRate(2);
@@ -35,23 +35,23 @@ class TimingAdjusterUnitTest {
 		cut.setAdjustedComponent(mockAdjustedComponent);
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(0)).adjustedTick();
+		verify(mockAdjustedComponent, times(0)).tick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(1)).adjustedTick();
+		verify(mockAdjustedComponent, times(1)).tick();
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(1)).adjustedTick();
+		verify(mockAdjustedComponent, times(1)).tick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).adjustedTick();
+		verify(mockAdjustedComponent, times(2)).tick();
 		
 		cut.setRate(3);
 		
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).adjustedTick();
+		verify(mockAdjustedComponent, times(2)).tick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(2)).adjustedTick();
+		verify(mockAdjustedComponent, times(2)).tick();
 		cut.tick();
-		verify(mockAdjustedComponent, times(3)).adjustedTick();
+		verify(mockAdjustedComponent, times(3)).tick();
 	}
 
 }

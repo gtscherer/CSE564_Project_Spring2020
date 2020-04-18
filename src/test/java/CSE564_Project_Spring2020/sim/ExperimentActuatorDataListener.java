@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ExperimentGyroDataListener implements DataListener {
+public class ExperimentActuatorDataListener implements DataListener {
 
-	private List<ExperimentGyroData> gyroTable;
+	private List<ExperimentActuatorData> actuatorTable;
 	private long time;
 	private Boolean[] valuesSet;
 	
-	public ExperimentGyroDataListener() {
-		gyroTable = new ArrayList<ExperimentGyroData>();
+	public ExperimentActuatorDataListener() {
+		actuatorTable = new ArrayList<ExperimentActuatorData>();
 		time = 0l;
 		valuesSet = new Boolean[]{false, false, false};
 	}
@@ -20,39 +20,39 @@ public class ExperimentGyroDataListener implements DataListener {
 	public void dataChanged(DataChangeEvent e) {
 		final DataType type = e.getType();
 
-		final ExperimentGyroData previousRow = gyroTable.isEmpty() ? new ExperimentGyroData() : gyroTable.get(gyroTable.size() - 1);
+		final ExperimentActuatorData previousRow = actuatorTable.isEmpty() ? new ExperimentActuatorData() : actuatorTable.get(actuatorTable.size() - 1);
 
 		if (type == DataType.WorldTime) {
 			
-			if (!allSet() && gyroTable.size() > 1) {
-				final ExperimentGyroData rowBeforePrevious = gyroTable.get(gyroTable.size() - 2);
+			if (!allSet() && actuatorTable.size() > 1) {
+				final ExperimentActuatorData rowBeforePrevious = actuatorTable.get(actuatorTable.size() - 2);
 				if (!valuesSet[0]) previousRow.roll = rowBeforePrevious.roll;
 				if (!valuesSet[1]) previousRow.pitch = rowBeforePrevious.pitch;
 				if (!valuesSet[2]) previousRow.yaw = rowBeforePrevious.yaw;
 			}
 
-			ExperimentGyroData newRow = new ExperimentGyroData();
+			ExperimentActuatorData newRow = new ExperimentActuatorData();
 			newRow.time = ++time;
-			gyroTable.add(newRow);
+			actuatorTable.add(newRow);
 			Arrays.fill(valuesSet, Boolean.FALSE);
 		}
-		else if (type == DataType.GyroRoll) {
+		else if (type == DataType.ActuatorRoll) {
 			previousRow.roll = Double.parseDouble(e.getValue());
 			valuesSet[0] = Boolean.TRUE;
 		}
-		else if (type == DataType.GyroPitch) {
+		else if (type == DataType.ActuatorPitch) {
 			previousRow.pitch = Double.parseDouble(e.getValue());
 			valuesSet[1] = Boolean.TRUE;
 		}
-		else if (type == DataType.GyroYaw) {
+		else if (type == DataType.ActuatorYaw) {
 			previousRow.yaw = Double.parseDouble(e.getValue());
 			valuesSet[2] = Boolean.TRUE;
 		}
 		
 	}
 
-	public List<ExperimentGyroData> getTable() {
-		return gyroTable;
+	public List<ExperimentActuatorData> getTable() {
+		return actuatorTable;
 	}
 
 	private Boolean allSet() {

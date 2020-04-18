@@ -1,4 +1,4 @@
-package CSE564_Project_Spring2020.ui;
+package CSE564_Project_Spring2020.sim;
 
 public class DataChangeEvent {
 	private DataType type;

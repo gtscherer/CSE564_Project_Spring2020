@@ -13,10 +13,11 @@ class GyroscopeUnitTest {
 	void smokeTest() {
 		Gyroscope cut = new Gyroscope();
 		
-		assertThrows(AssertionError.class, () -> { cut.getRoll(); });
-		assertThrows(AssertionError.class, () -> { cut.getPitch(); });
-		assertThrows(AssertionError.class, () -> { cut.getYaw(); });
-		assertThrows(AssertionError.class, () -> { cut.adjustedTick(); });
+		assertThrows(AssertionError.class, () -> { cut.tick(); });
+		
+		assertEquals(new Degree(), cut.getRoll());
+		assertEquals(new Degree(), cut.getPitch());
+		assertEquals(new Degree(), cut.getYaw());
 		
 		World mockWorld = mock(World.class);
 
@@ -26,11 +27,11 @@ class GyroscopeUnitTest {
 		
 		cut.setWorld(mockWorld);
 		
-		assertThrows(AssertionError.class, () -> { cut.getRoll(); });
-		assertThrows(AssertionError.class, () -> { cut.getPitch(); });
-		assertThrows(AssertionError.class, () -> { cut.getYaw(); });
+		assertEquals(new Degree(), cut.getRoll());
+		assertEquals(new Degree(), cut.getPitch());
+		assertEquals(new Degree(), cut.getYaw());
 		
-		cut.adjustedTick();
+		cut.tick();
 		
 		assertEquals(2.0d, cut.getRoll());
 		assertEquals(3.0d, cut.getPitch());
@@ -44,7 +45,7 @@ class GyroscopeUnitTest {
 		assertEquals(3.0d, cut.getPitch());
 		assertEquals(1.0d, cut.getYaw());
 		
-		cut.adjustedTick();
+		cut.tick();
 
 		assertEquals(4.0d, cut.getRoll());
 		assertEquals(5.0d, cut.getPitch());

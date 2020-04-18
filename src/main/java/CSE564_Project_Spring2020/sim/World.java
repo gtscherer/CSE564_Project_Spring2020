@@ -2,10 +2,6 @@ package CSE564_Project_Spring2020.sim;
 
 import java.util.Optional;
 
-import CSE564_Project_Spring2020.ui.DataChangeEvent;
-import CSE564_Project_Spring2020.ui.DataListener;
-import CSE564_Project_Spring2020.ui.DataType;
-
 public class World {
 	private WorldState rollState, pitchState, yawState;
 	private Optional<DataListener> worldStateListener;

@@ -15,7 +15,7 @@ class ActuatorUnitTest {
 	void testSetWorld() {
 		Actuator cut = new Actuator(RotationAxis.PITCH);
 		
-		assertThrows(AssertionError.class, () -> { cut.adjustedTick(); });
+		assertThrows(AssertionError.class, () -> { cut.tick(); });
 		assertThrows(AssertionError.class, () -> { cut.setWorld(null); });
 
 		World mockWorld = mock(World.class);
@@ -32,19 +32,19 @@ class ActuatorUnitTest {
 	void testSimTickNoRotate() {
 		Actuator cut = new Actuator(RotationAxis.YAW);
 		
-		assertThrows(AssertionError.class, () -> { cut.adjustedTick(); });
+		assertThrows(AssertionError.class, () -> { cut.tick(); });
 		
 		World mockWorld = mock(World.class);
 		
 		cut.setWorld(mockWorld);
 		
-		cut.adjustedTick();
+		cut.tick();
 		
 		verify(mockWorld, never()).rollChanged(anyDouble());
 		verify(mockWorld, never()).pitchChanged(anyDouble());
 		verify(mockWorld, never()).yawChanged(anyDouble());
 		
-		cut.adjustedTick();
+		cut.tick();
 
 		verify(mockWorld, never()).rollChanged(anyDouble());
 		verify(mockWorld, never()).pitchChanged(anyDouble());
@@ -55,12 +55,12 @@ class ActuatorUnitTest {
 	void testSimTickWithRotate() {
 		Actuator cut = new Actuator(RotationAxis.ROLL);
 		
-		assertThrows(AssertionError.class, () -> { cut.adjustedTick(); });
+		assertThrows(AssertionError.class, () -> { cut.tick(); });
 		
 		World mockWorld = mock(World.class);
 		
 		cut.setWorld(mockWorld);
-		cut.adjustedTick();
+		cut.tick();
 		
 		verify(mockWorld, never()).rollChanged(anyDouble());
 		verify(mockWorld, never()).pitchChanged(anyDouble());
@@ -68,7 +68,7 @@ class ActuatorUnitTest {
 		
 		cut.rotate(5.3d);
 		
-		cut.adjustedTick();
+		cut.tick();
 
 		verify(mockWorld, times(1)).rollChanged(5.3d);
 		verify(mockWorld, never()).pitchChanged(anyDouble());

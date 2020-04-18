@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class TimingAdjuster {
 	private int refreshRate, ticks;
-	private Optional<TimingAdjusted> adjustedComponent;
+	private Optional<ClockedComponent> adjustedComponent;
 	
 	public TimingAdjuster() {
 		adjustedComponent = Optional.empty();
@@ -17,7 +17,7 @@ public class TimingAdjuster {
 		refreshRate = rate;
 	}
 	
-	public void setAdjustedComponent(TimingAdjusted component) {
+	public void setAdjustedComponent(ClockedComponent component) {
 		assert(component != null);
 		adjustedComponent = Optional.of(component);
 	}
@@ -28,7 +28,7 @@ public class TimingAdjuster {
 		++ticks;
 		
 		if (ticks == refreshRate) {
-			adjustedComponent.get().adjustedTick();
+			adjustedComponent.get().tick();
 			ticks = 0;
 		}
 	}

@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import CSE564_Project_Spring2020.sim.DataType;
+
 public class DataScreen {
 	private JFrame mainScreen;
 	private String title;
@@ -26,6 +28,7 @@ public class DataScreen {
 		JPanel screenPanel = new JPanel(new GridBagLayout());
 		screenPanel.add(buildWorldDataPanel(), gridLocation(0, 0));
 		screenPanel.add(buildGyroscopePanel(), gridLocation(0, 1));
+		screenPanel.add(buildActuatorPanel(), gridLocation(0, 2));
 		
 		screen.add(screenPanel);
 		
@@ -59,6 +62,19 @@ public class DataScreen {
 		return panel;
 	}
 	
+	private JPanel buildActuatorPanel() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		
+		panel.add(new JLabel("Actuator Movements"), gridLocation(0, 0));
+		panel.add(makeDataDisplayField("Last Change in Roll", "deg", DataType.ActuatorRoll), gridLocation(0, 1));
+		panel.add(makeDataDisplayField("Last Change in Pitch", "deg", DataType.ActuatorPitch), gridLocation(0, 2));
+		panel.add(makeDataDisplayField("Last Change in Yaw", "deg", DataType.ActuatorYaw), gridLocation(0, 3));
+		
+		panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+		return panel;
+	}
+	
     private JPanel makeDataDisplayField(final String name, final String units, final DataType type) {
     	JPanel displayField = new JPanel();
     	
@@ -86,6 +102,15 @@ public class DataScreen {
     	}
     	else if (type == DataType.GyroYaw) {
     		DataScreenController.gyroDataListener.registerYawLabel(data);
+    	}
+    	else if (type == DataType.ActuatorRoll) {
+    		DataScreenController.actuatorDataListener.registerRollLabel(data);
+    	}
+    	else if (type == DataType.ActuatorPitch) {
+    		DataScreenController.actuatorDataListener.registerPitchLabel(data);
+    	}
+    	else if (type == DataType.ActuatorYaw) {
+    		DataScreenController.actuatorDataListener.registerYawLabel(data);
     	}
     	
     	displayField.add(fieldName);

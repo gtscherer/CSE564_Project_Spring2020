@@ -1,4 +1,4 @@
-package CSE564_Project_Spring2020.ui;
+package CSE564_Project_Spring2020.sim;
 
 public enum DataType {
 	WorldRoll,
@@ -7,5 +7,8 @@ public enum DataType {
 	WorldTime,
 	GyroRoll,
 	GyroPitch,
-	GyroYaw
+	GyroYaw,
+	ActuatorRoll,
+	ActuatorPitch,
+	ActuatorYaw
 }

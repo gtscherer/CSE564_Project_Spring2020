@@ -2,22 +2,26 @@ package CSE564_Project_Spring2020.sim;
 
 import java.util.Optional;
 
-public class Actuator implements TimingAdjusted {
+public class Actuator implements ClockedComponent {
 	private Optional<Double> lastDeltaDeg;
-	private Optional<World> world;
+	private World world;
 	private final RotationAxis direction;
+	
+	private Optional<DataListener> actuatorListener;
 	
 	public Actuator(RotationAxis _direction) {
 		assert(_direction != null);
 
 		lastDeltaDeg = Optional.empty();
-		world = Optional.empty();
+		world = null;
 		direction = _direction;
+		
+		actuatorListener = Optional.empty();
 	}
 	
 	public void setWorld(World _world) {
 		assert(_world != null);
-		world = Optional.of(_world);
+		world = _world;
 	}
 	
 	public void rotate(Double amount) {
@@ -27,21 +31,39 @@ public class Actuator implements TimingAdjusted {
 		lastDeltaDeg = Optional.of(amount);
 	}
 
+	public void setActuatorListener(DataListener l) {
+		assert(l != null);
+		
+		actuatorListener = Optional.of(l);
+	}
+
 	@Override
-	public void adjustedTick() {
-		assert(world.isPresent());
+	public void tick() {
+		assert(world != null);
 
 		lastDeltaDeg.ifPresent((Double amount) -> {
-			final World w = world.get();
-
+			final String amountString = String.format("%.6f", amount);
+			
 			if (direction == RotationAxis.ROLL) {
-				w.rollChanged(amount);
+				world.rollChanged(amount);
+				
+				actuatorListener.ifPresent(
+					(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.ActuatorRoll, amountString))
+				);
 			}
 			else if (direction == RotationAxis.PITCH) {
-				w.pitchChanged(amount);
+				world.pitchChanged(amount);
+				
+				actuatorListener.ifPresent(
+					(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.ActuatorPitch, amountString))
+				);
 			}
 			else if (direction == RotationAxis.YAW) {
-				w.yawChanged(amount);
+				world.yawChanged(amount);
+				
+				actuatorListener.ifPresent(
+					(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.ActuatorYaw, amountString))
+				);
 			}
 		});
 	}

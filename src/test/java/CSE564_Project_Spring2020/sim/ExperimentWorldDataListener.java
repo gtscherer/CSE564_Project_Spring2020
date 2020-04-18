@@ -5,10 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import CSE564_Project_Spring2020.ui.DataChangeEvent;
-import CSE564_Project_Spring2020.ui.DataListener;
-import CSE564_Project_Spring2020.ui.DataType;
-
 public class ExperimentWorldDataListener implements DataListener {
 
 	private List<ExperimentWorldData> worldTable;
@@ -16,6 +12,7 @@ public class ExperimentWorldDataListener implements DataListener {
 	private Boolean[] valuesSet;
 	
 	private Optional<DataListener> gyroListener;
+	private Optional<DataListener> actuatorListener;
 	
 	public ExperimentWorldDataListener() {
 		worldTable = new ArrayList<ExperimentWorldData>();
@@ -23,11 +20,17 @@ public class ExperimentWorldDataListener implements DataListener {
 		valuesSet = new Boolean[]{false, false, false};
 		
 		gyroListener = Optional.empty();
+		actuatorListener = Optional.empty();
 	}
 	
 	public void setGyroDataListener(DataListener l) {
 		assert(l != null);
 		gyroListener = Optional.of(l);
+	}
+	
+	public void setActuatorDataListener(DataListener l) {
+		assert(l != null);
+		actuatorListener = Optional.of(l);
 	}
 
 	@Override
@@ -51,6 +54,7 @@ public class ExperimentWorldDataListener implements DataListener {
 			Arrays.fill(valuesSet, Boolean.FALSE);
 			
 			gyroListener.ifPresent((DataListener l) -> l.dataChanged(e));
+			actuatorListener.ifPresent((DataListener l) -> l.dataChanged(e));
 		}
 		else if (type == DataType.WorldRoll) {
 			previousRow.roll = Double.parseDouble(e.getValue());
