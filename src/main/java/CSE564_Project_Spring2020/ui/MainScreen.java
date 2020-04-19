@@ -136,6 +136,7 @@ public class MainScreen {
     	
     	MainScreenController.startStopButtonListener.registerControllerPicker(controllerPicker);
     	MainScreenController.singleStepButtonListener.registerControllerPicker(controllerPicker);
+    	MainScreenController.multiStepButtonListener.registerControllerPicker(controllerPicker);
     	
     	return newPanel;
     }
