@@ -24,9 +24,13 @@ class SimulationExperiments {
 	 * 	                 to what effect the world state should change.
 	 * @throws InterruptedException propagated from Thread.join
 	 */
-	private void runExperiment(final long experimentDuration, final DelaySettings delays, Optional<List<ExperimentWorldEvent>> eventTable) throws InterruptedException {
+	private void runExperiment(final long experimentDuration, final DelaySettings delays, ControllerType controllerType, Optional<List<ExperimentWorldEvent>> eventTable) throws InterruptedException {
 		Simulator s = new Simulator(experimentDuration);
 		
+		ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setRollController(c));
+		ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setPitchController(c));
+		ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setYawController(c));
+	
 		s.setGyroDelay(delays.gyroDelay);
 		s.setActuatorDelay(RotationAxis.ROLL, delays.rollActuatorDelay);
 		s.setActuatorDelay(RotationAxis.PITCH, delays.pitchActuatorDelay);
@@ -86,7 +90,7 @@ class SimulationExperiments {
 		
 		DelaySettings delays = new DelaySettings(300, 300, 300, 300);
 		
-		runExperiment(40l, delays, Optional.of(events));
+		runExperiment(40l, delays, ControllerType.None, Optional.of(events));
 		
 		List<ExperimentWorldData> expectedWorldData = Arrays.asList(
 			new ExperimentWorldData(1, 0.0, 0.0, 0.0),

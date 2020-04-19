@@ -87,20 +87,18 @@ public class MainScreenController {
 				return;
 			}
 			final ControllerType controllerType = getControllerType();
-	        if (controllerType != ControllerType.None) {
-	        	sim.ifPresent(
-        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-    									.ifPresent((Controller c) -> s.setRollController(c))
-				);
-	        	sim.ifPresent(
-        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-        								.ifPresent((Controller c) -> s.setPitchController(c))
-				);
-	        	sim.ifPresent(
-        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-        								.ifPresent((Controller c) -> s.setYawController(c))
-				);
-	        }
+        	sim.ifPresent(
+    			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+									.ifPresent((Controller c) -> s.setRollController(c))
+			);
+        	sim.ifPresent(
+    			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+    								.ifPresent((Controller c) -> s.setPitchController(c))
+			);
+        	sim.ifPresent(
+    			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+    								.ifPresent((Controller c) -> s.setYawController(c))
+			);
 	        controllerIsSet = true;
 		}
 		
