@@ -176,9 +176,9 @@ public class Simulator extends Thread implements ClockedComponent {
 		worldEventManager.tick();
 		gyroAdjuster.tick();
 
-		rollController.ifPresent((Controller c) -> c.tick());
-		pitchController.ifPresent((Controller c) -> c.tick());
-		yawController.ifPresent((Controller c) -> c.tick());
+		rollController.ifPresent(Controller::tick);
+		pitchController.ifPresent(Controller::tick);
+		yawController.ifPresent(Controller::tick);
 
 		rollActuatorAdjuster.tick();
 		pitchActuatorAdjuster.tick();

@@ -32,6 +32,9 @@ public class SimpleController implements Controller {
 		if (!deg.isZero()) {
 			actuator.rotate(-1 * deg.getValue());
 		}
+		else {
+			actuator.rotate(0.0d);
+		}
 	}
 
 	@Override

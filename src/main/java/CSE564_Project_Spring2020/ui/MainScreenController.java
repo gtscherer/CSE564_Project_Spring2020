@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
-import CSE564_Project_Spring2020.sim.Controller;
 import CSE564_Project_Spring2020.sim.ControllerFactory;
 import CSE564_Project_Spring2020.sim.ControllerType;
 import CSE564_Project_Spring2020.sim.RotationAxis;
@@ -38,10 +37,10 @@ public class MainScreenController {
 		@Override
 		public void windowStateChanged(WindowEvent e) {
 			if (e.getNewState() == WindowEvent.WINDOW_CLOSED) {
-				sim.ifPresent((Simulator s) -> {
-					s.interrupt();
-				});
-				threads.stream().filter((Thread t) -> t.isAlive()).forEach((Thread t) -> t.interrupt());
+				sim.ifPresent(Thread::interrupt);
+				threads.stream()
+					.filter(Thread::isAlive)
+					.forEach(Thread::interrupt);
 			}
 		}
 		
@@ -50,12 +49,12 @@ public class MainScreenController {
 			sim = Optional.of(_sim);
 		}
 		
-		public void addThread(Thread thread) {
-			threads.add(thread);
+		public void addThread(Thread _thread) {
+			threads.add(_thread);
 			
 			if (threads.size() > 1000) {
 				threads = threads.stream()
-							.filter((Thread t) -> t.isAlive())
+							.filter(Thread::isAlive)
 							.collect(Collectors.toCollection(() -> new LinkedList<Thread>()));
 			}
 		}
@@ -89,15 +88,15 @@ public class MainScreenController {
 			final ControllerType controllerType = getControllerType();
         	sim.ifPresent(
     			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-									.ifPresent((Controller c) -> s.setRollController(c))
+									.ifPresent(controller -> s.setRollController(controller))
 			);
         	sim.ifPresent(
     			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-    								.ifPresent((Controller c) -> s.setPitchController(c))
+    								.ifPresent(controller -> s.setPitchController(controller))
 			);
         	sim.ifPresent(
     			(Simulator s) -> ControllerFactory.CreateController(controllerType)
-    								.ifPresent((Controller c) -> s.setYawController(c))
+    								.ifPresent(controller -> s.setYawController(controller))
 			);
 	        controllerIsSet = true;
 		}
@@ -152,10 +151,10 @@ public class MainScreenController {
 			});
 			
 			if (success[0]) {
-				gyroDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
-				rollActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
-				pitchActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
-				yawActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
+				gyroDelayField.ifPresent(gyroField -> gyroField.setEnabled(false));
+				rollActuatorDelayField.ifPresent(rollField -> rollField.setEnabled(false));
+				pitchActuatorDelayField.ifPresent(pitchField -> pitchField.setEnabled(false));
+				yawActuatorDelayField.ifPresent(yawField -> yawField.setEnabled(false));
 			}
 			
 			return success[0];
@@ -256,24 +255,24 @@ public class MainScreenController {
 				        	return;
 				        }
 				        setController();
-						controllerPicker.ifPresent((JComboBox<ControllerType> b) -> b.setEnabled(false));
+						controllerPicker.ifPresent(picker -> picker.setEnabled(false));
 					}
 					
 					if (ssb.getText().contentEquals("Start") || ssb.getText().contentEquals("Resume")) {
-						sim.ifPresent((Simulator s) -> s.unpause());
+						sim.ifPresent(Simulator::unpause);
 						ssb.setText("Pause");
 						
-						singleStepButton.ifPresent((JButton stb) -> stb.setEnabled(false));
-						multiStepButton.ifPresent((JButton msb) -> msb.setEnabled(false));
-						stepPicker.ifPresent((JSpinner picker) -> picker.setEnabled(false));
+						singleStepButton.ifPresent(stb -> stb.setEnabled(false));
+						multiStepButton.ifPresent(msb -> msb.setEnabled(false));
+						stepPicker.ifPresent(picker -> picker.setEnabled(false));
 					}
 					else if (ssb.getText().contentEquals("Pause")) {
-						sim.ifPresent((Simulator s) -> s.pause());
+						sim.ifPresent(Simulator::pause);
 						ssb.setText("Resume");
 						
-						singleStepButton.ifPresent((JButton stb) -> stb.setEnabled(true));
-						multiStepButton.ifPresent((JButton msb) -> msb.setEnabled(true));
-						stepPicker.ifPresent((JSpinner picker) -> picker.setEnabled(true));
+						singleStepButton.ifPresent(stb -> stb.setEnabled(true));
+						multiStepButton.ifPresent(msb -> msb.setEnabled(true));
+						stepPicker.ifPresent(picker -> picker.setEnabled(true));
 					}
 				});
 			}
@@ -319,7 +318,7 @@ public class MainScreenController {
 					t.start();
 					mainScreenStateListener.addThread(t);
 				});
-				controllerPicker.ifPresent((JComboBox<ControllerType> box) -> box.setEnabled(false));
+				controllerPicker.ifPresent(picker -> picker.setEnabled(false));
 			}
 		}
 	}
@@ -348,7 +347,7 @@ public class MainScreenController {
 						mainScreenStateListener.addThread(t);
 					});
 				});
-				controllerPicker.ifPresent((JComboBox<ControllerType> box) -> box.setEnabled(false));
+				controllerPicker.ifPresent(picker -> picker.setEnabled(false));
 			}
 		}
 		
@@ -539,7 +538,7 @@ public class MainScreenController {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
-				worldDataScreen.ifPresent((JDialog wds) -> wds.setVisible(true));
+				worldDataScreen.ifPresent(dataScreen -> dataScreen.setVisible(true));
 			}
 		}
 		
