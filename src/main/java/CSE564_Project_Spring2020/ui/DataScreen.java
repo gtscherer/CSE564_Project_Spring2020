@@ -79,7 +79,7 @@ public class DataScreen {
     	JPanel displayField = new JPanel();
     	
     	JLabel fieldName = new JLabel(String.format("%s: ", name));
-    	JLabel data = new JLabel();
+    	JLabel data = new JLabel("0");
     	JLabel unitsLabel = new JLabel(units);
     	
     	if (type == DataType.WorldTime) {

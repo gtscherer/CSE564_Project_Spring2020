@@ -8,23 +8,28 @@ import java.util.Optional;
  * Ordering of "ticks" denotes precedence relationships
  * between components.
  */
-public class Simulator extends Thread {
+public class Simulator extends Thread implements ClockedComponent {
 	private World world;
 	private WorldEventManager worldEventManager;
 	private Gyroscope gyroscope;
 	private Actuator rollActuator;
 	private Actuator pitchActuator;
 	private Actuator yawActuator;
+	
+	private TimingAdjuster gyroAdjuster;
+	private TimingAdjuster rollActuatorAdjuster;
+	private TimingAdjuster pitchActuatorAdjuster;
+	private TimingAdjuster yawActuatorAdjuster;
 
 	private boolean isWaiting;
 	private long maxTicks;
+	private long numTicks;
+
 	private Optional<Controller> rollController;
 	private Optional<Controller> pitchController;
 	private Optional<Controller> yawController;
 
 	private Optional<DataListener> worldStateListener;
-	private Optional<DataListener> gyroscopeDataListener;
-	private Optional<DataListener> actuatorDataListener;
 	
 	public Simulator() {
 		this(Long.MAX_VALUE);
@@ -38,15 +43,35 @@ public class Simulator extends Thread {
 		pitchActuator = new Actuator(RotationAxis.PITCH);
 		yawActuator = new Actuator(RotationAxis.YAW);
 		
+		gyroAdjuster = new TimingAdjuster();
+		rollActuatorAdjuster = new TimingAdjuster();
+		pitchActuatorAdjuster = new TimingAdjuster();
+		yawActuatorAdjuster = new TimingAdjuster();
+		
 		isWaiting = false;
 		maxTicks = _maxTicks;
+		numTicks = 0;
 		rollController = Optional.empty();
 		pitchController = Optional.empty();
 		yawController = Optional.empty();
 		
 		worldStateListener = Optional.empty();
-		gyroscopeDataListener = Optional.empty();
-		actuatorDataListener = Optional.empty();
+		
+		worldEventManager.setWorld(world);
+		gyroscope.setWorld(world);
+		rollActuator.setWorld(world);
+		pitchActuator.setWorld(world);
+		yawActuator.setWorld(world);
+		
+		gyroAdjuster.setAdjustedComponent(gyroscope);
+		rollActuatorAdjuster.setAdjustedComponent(rollActuator);
+		pitchActuatorAdjuster.setAdjustedComponent(pitchActuator);
+		yawActuatorAdjuster.setAdjustedComponent(yawActuator);
+		
+		gyroAdjuster.setRate(1);
+		rollActuatorAdjuster.setRate(1);
+		pitchActuatorAdjuster.setRate(1);
+		yawActuatorAdjuster.setRate(1);
 	}
 	
 	public void setRollController(Controller _controller) {
@@ -82,50 +107,38 @@ public class Simulator extends Thread {
 	
 	public void setGyroscopeDataListener(DataListener l) {
 		assert(l != null);
-		gyroscopeDataListener = Optional.of(l);
+		gyroscope.setGyroscopeStateListener(l);
 	}
 	
 	public void setActuatorDataListener(DataListener l) {
 		assert(l != null);
-		actuatorDataListener = Optional.of(l);
+		rollActuator.setActuatorListener(l);
+		pitchActuator.setActuatorListener(l);
+		yawActuator.setActuatorListener(l);
+	}
+	
+	public void setGyroDelay(int ms) {
+		gyroAdjuster.setRate(ms);
+	}
+	
+	public void setActuatorDelay(RotationAxis axis, int ms) {
+		if (axis == RotationAxis.ROLL) {
+			rollActuatorAdjuster.setRate(ms);
+		}
+		else if (axis == RotationAxis.PITCH) {
+			pitchActuatorAdjuster.setRate(ms);
+		}
+		else if (axis == RotationAxis.YAW) {
+			yawActuatorAdjuster.setRate(ms);
+		}
 	}
 	
 	@Override
 	public void run() {
-		gyroscopeDataListener.ifPresent((DataListener l) -> gyroscope.setGyroscopeStateListener(l));
-
-		actuatorDataListener.ifPresent((DataListener l) -> {
-			rollActuator.setActuatorListener(l);
-			pitchActuator.setActuatorListener(l);
-			yawActuator.setActuatorListener(l);
-		});
-
-		TimingAdjuster gyroAdjuster = new TimingAdjuster();
-		TimingAdjuster rollActuatorAdjuster = new TimingAdjuster();
-		TimingAdjuster pitchActuatorAdjuster = new TimingAdjuster();
-		TimingAdjuster yawActuatorAdjuster = new TimingAdjuster();
-		
-		gyroAdjuster.setAdjustedComponent(gyroscope);
-		rollActuatorAdjuster.setAdjustedComponent(rollActuator);
-		pitchActuatorAdjuster.setAdjustedComponent(pitchActuator);
-		yawActuatorAdjuster.setAdjustedComponent(yawActuator);
-		
-		gyroAdjuster.setRate(200); //Tick every 200 ms
-		rollActuatorAdjuster.setRate(300); //Tick every 300 ms
-		pitchActuatorAdjuster.setRate(400); //Tick every 400 ms
-		yawActuatorAdjuster.setRate(300); //Tick every 300 ms
-		
-		worldEventManager.setWorld(world);
-		gyroscope.setWorld(world);
-		rollActuator.setWorld(world);
-		pitchActuator.setWorld(world);
-		yawActuator.setWorld(world);
-		
 		Clock clock = Clock.systemDefaultZone();
 		final long startMillis = clock.millis();
 		long prevMillis = startMillis;
-		long numTicks = 0;
-		for (int i = 0; i < Integer.MAX_VALUE && !isInterrupted() && numTicks < maxTicks; ++i) {
+		while (!isInterrupted() && numTicks < Math.min(maxTicks, Integer.MAX_VALUE)) {
 			try {
 				pauseIfNeeded();
 			}
@@ -137,32 +150,42 @@ public class Simulator extends Thread {
 			final long currentTime = clock.millis();
 
 			if (currentTime - prevMillis < 1) {
-				continue;
+				try {
+					Thread.sleep(0, 100000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					break;
+				}
 			}
-
-			++numTicks;
-			final long relativeTime = numTicks;
-
-			worldStateListener.ifPresent((DataListener l) -> {
-				l.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(relativeTime)));
-			});
-
-			worldEventManager.tick();
-			gyroAdjuster.tick();
-
-			rollController.ifPresent((Controller c) -> c.tick());
-			pitchController.ifPresent((Controller c) -> c.tick());
-			yawController.ifPresent((Controller c) -> c.tick());
-
-			rollActuatorAdjuster.tick();
-			pitchActuatorAdjuster.tick();
-			yawActuatorAdjuster.tick();
 			
+			tick();
+
 			prevMillis = currentTime;
 		}
 	}
 	
-	public synchronized void pause() throws InterruptedException {
+	@Override
+	public void tick() {
+		++numTicks;
+		final long relativeTime = numTicks;
+
+		worldStateListener.ifPresent((DataListener l) -> {
+			l.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(relativeTime)));
+		});
+
+		worldEventManager.tick();
+		gyroAdjuster.tick();
+
+		rollController.ifPresent((Controller c) -> c.tick());
+		pitchController.ifPresent((Controller c) -> c.tick());
+		yawController.ifPresent((Controller c) -> c.tick());
+
+		rollActuatorAdjuster.tick();
+		pitchActuatorAdjuster.tick();
+		yawActuatorAdjuster.tick();
+	}
+	
+	public synchronized void pause() {
 		isWaiting = true;
 	}
 	

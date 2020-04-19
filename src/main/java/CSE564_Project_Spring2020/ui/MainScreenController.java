@@ -5,67 +5,34 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
 import CSE564_Project_Spring2020.sim.Controller;
 import CSE564_Project_Spring2020.sim.ControllerFactory;
 import CSE564_Project_Spring2020.sim.ControllerType;
+import CSE564_Project_Spring2020.sim.RotationAxis;
 import CSE564_Project_Spring2020.sim.Simulator;
 
 public class MainScreenController {
-	public enum AccelerationType {
-		ROLL(0),
-		PITCH(1),
-		YAW(2);
-		
-		private int i;
-		AccelerationType(int i) {
-			this.i = i;
-		}
-		
-		public int getIndex() {
-			return i;
-		}
-		
-		public String getText() {
-			if (i == 0) {
-				return "Roll";
-			}
-			else if (i == 1) {
-				return "Pitch";
-			}
-			else if (i == 2) {
-				return "Yaw";
-			}
-			return "";
-		}
-		
-		public static AccelerationType getType(int index) {
-			if (index == 0) {
-				return ROLL;
-			}
-			else if (index == 1) {
-				return PITCH;
-			}
-			else if (index == 2) {
-				return YAW;
-			}
-			return null;
-		}
-	}
 	
 	static class MainScreenStateListener implements WindowStateListener {
 		private Optional<Simulator> sim;
+		private List<Thread> threads;
 		
 		public MainScreenStateListener() {
 			sim = Optional.empty();
+			threads = new LinkedList<Thread>();
 		}
 
 		@Override
@@ -74,6 +41,7 @@ public class MainScreenController {
 				sim.ifPresent((Simulator s) -> {
 					s.interrupt();
 				});
+				threads.stream().filter((Thread t) -> t.isAlive()).forEach((Thread t) -> t.interrupt());
 			}
 		}
 		
@@ -82,91 +50,139 @@ public class MainScreenController {
 			sim = Optional.of(_sim);
 		}
 		
+		public void addThread(Thread thread) {
+			threads.add(thread);
+			
+			if (threads.size() > 1000) {
+				threads = threads.stream()
+							.filter((Thread t) -> t.isAlive())
+							.collect(Collectors.toCollection(() -> new LinkedList<Thread>()));
+			}
+		}
 	}
 	
 	public static final MainScreenStateListener mainScreenStateListener = new MainScreenStateListener();
 
-	static class OpenWorldDataScreenListener implements ActionListener {
-		private Optional<JDialog> worldDataScreen;
+	static abstract class SimulationStarter implements ActionListener {
+		protected Optional<Simulator> sim;
+		protected Optional<JComboBox<ControllerType>> controllerPicker;
+		private Optional<JTextField> gyroDelayField, rollActuatorDelayField, pitchActuatorDelayField, yawActuatorDelayField;
+		private Optional<JFrame> mainScreen;
+		private boolean controllerIsSet, delaysAreSet;
 		
-		public OpenWorldDataScreenListener() {
-			worldDataScreen = Optional.empty();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
-				worldDataScreen.ifPresent((JDialog wds) -> wds.setVisible(true));
-			}
-		}
-		
-		public void registerWorldDataScreen(JDialog _worldDataScreen) {
-			assert(_worldDataScreen != null);
-			worldDataScreen = Optional.of(_worldDataScreen);
-		}
-		
-	}
-	
-	public static final OpenWorldDataScreenListener openWorldDataScreenListener = new OpenWorldDataScreenListener();
-	
-	static class StartStopButtonListener implements ActionListener {
-		private Optional<JButton> startStopButton;
-		private Optional<Simulator> sim;
-		private Optional<JComboBox<ControllerType>> controllerPicker;
-		
-		public StartStopButtonListener() {
-			startStopButton = Optional.empty();
+		public SimulationStarter() {
 			sim = Optional.empty();
 			controllerPicker = Optional.empty();
-		}
+			gyroDelayField = Optional.empty();
+			rollActuatorDelayField = Optional.empty();
+			pitchActuatorDelayField = Optional.empty();
+			yawActuatorDelayField = Optional.empty();
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
-				startStopButton.ifPresent((JButton ssb) -> {
-					if(ssb.getText().contentEquals("Start")) {
-						controllerPicker.ifPresent((JComboBox<ControllerType> b) -> b.setEnabled(false));
-				        ControllerType controllerType = getControllerType();
-				        
-				        if (controllerType != ControllerType.None) {
-				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setRollController(c)));
-				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setPitchController(c)));
-				        	sim.ifPresent((Simulator s) -> ControllerFactory.CreateController(controllerType).ifPresent((Controller c) -> s.setYawController(c)));
-				        }
+			controllerIsSet = false;
+			delaysAreSet = false;
+		}
+		
+		protected void setController() {
+			if (controllerIsSet) {
+				return;
+			}
+			final ControllerType controllerType = getControllerType();
+	        if (controllerType != ControllerType.None) {
+	        	sim.ifPresent(
+        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+    									.ifPresent((Controller c) -> s.setRollController(c))
+				);
+	        	sim.ifPresent(
+        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+        								.ifPresent((Controller c) -> s.setPitchController(c))
+				);
+	        	sim.ifPresent(
+        			(Simulator s) -> ControllerFactory.CreateController(controllerType)
+        								.ifPresent((Controller c) -> s.setYawController(c))
+				);
+	        }
+	        controllerIsSet = true;
+		}
+		
+		protected boolean setSimulationDelays() {
+			if (delaysAreSet) {
+				return true;
+			}
+			
+			boolean[] success = new boolean[] { true };
+			
+			sim.ifPresent((Simulator s) -> {
+				gyroDelayField.ifPresent((JTextField f) -> {
+					Integer value = parseDelayField(f.getText());
+					if (value != null) {
+						s.setGyroDelay(value);
 					}
-					
-					if (ssb.getText().contentEquals("Start") || ssb.getText().contentEquals("Resume")) {
-						sim.ifPresent((Simulator s) -> s.unpause());
-						ssb.setText("Pause");
-					}
-					else if (ssb.getText().contentEquals("Pause")) {
-						sim.ifPresent((Simulator s) -> {
-							try {
-								s.pause();
-							} catch (InterruptedException e1) {
-								e1.printStackTrace();
-							}
-						});
-						ssb.setText("Resume");
+					else {
+						success[0] = false;
 					}
 				});
-			}
-		}
-		
-		public void registerStartStopButton(JButton _startStopButton) {
-			assert(_startStopButton != null);
-			startStopButton = Optional.of(_startStopButton);
-		}
-		
-		public void registerSimulator(Simulator _sim) {
-			assert(_sim != null);
-			sim = Optional.of(_sim);
-		}
-		
-		public void registerControllerPicker(JComboBox<ControllerType> _controllerPicker) {
-			assert(_controllerPicker != null);
+				
+				rollActuatorDelayField.ifPresent((JTextField f) -> {
+					Integer value = parseDelayField(f.getText());
+					if (value != null) {
+						s.setActuatorDelay(RotationAxis.ROLL, value);
+					}
+					else {
+						success[0] = false;
+					}
+				});
+				
+				pitchActuatorDelayField.ifPresent((JTextField f) -> {
+					Integer value = parseDelayField(f.getText());
+					if (value != null) {
+						s.setActuatorDelay(RotationAxis.PITCH, value);
+					}
+					else {
+						success[0] = false;
+					}
+				});
+				
+				yawActuatorDelayField.ifPresent((JTextField f) -> {
+					Integer value = parseDelayField(f.getText());
+					if (value != null) {
+						s.setActuatorDelay(RotationAxis.YAW, value);
+					}
+					else {
+						success[0] = false;
+					}
+				});
+			});
 			
-			controllerPicker = Optional.of(_controllerPicker);
+			if (success[0]) {
+				gyroDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
+				rollActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
+				pitchActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
+				yawActuatorDelayField.ifPresent((JTextField f) -> f.setEnabled(false));
+			}
+			
+			return success[0];
+		}
+		
+		private Integer parseDelayField(String fieldText) {
+			try {
+				Integer value = Integer.parseUnsignedInt(fieldText);
+
+				if (value.compareTo(1) >= 0) {
+					return value;
+				}
+			}
+			catch (NumberFormatException e) {
+				e.printStackTrace(System.err);
+			}
+			
+			JOptionPane.showMessageDialog(
+				mainScreen.get(),
+				String.format("Invalid positive integer: %s.\nPlease enter a valid value greater than 1", fieldText),
+				"Number Error!",
+				JOptionPane.ERROR_MESSAGE
+			);
+			
+			return null;
 		}
 		
 		public ControllerType getControllerType() {
@@ -179,9 +195,173 @@ public class MainScreenController {
 			}
 			return ControllerType.None;
 		}
+		
+		public void registerControllerPicker(JComboBox<ControllerType> _controllerPicker) {
+			assert(_controllerPicker != null);
+			
+			controllerPicker = Optional.of(_controllerPicker);
+		}
+		
+		public void registerSimulator(Simulator _sim) {
+			assert(_sim != null);
+
+			sim = Optional.of(_sim);
+		}
+		
+		public void registerGyroDelayField(JTextField _gyroDelayField) {
+			assert(_gyroDelayField != null);
+			
+			gyroDelayField = Optional.of(_gyroDelayField);
+		}
+		
+		public void registerActuatorDelayField(RotationAxis axis, JTextField actuatorDelayField) {
+			assert(actuatorDelayField != null);
+			
+			if (axis == RotationAxis.ROLL) {
+				rollActuatorDelayField = Optional.of(actuatorDelayField);
+			}
+			else if (axis == RotationAxis.PITCH) {
+				pitchActuatorDelayField = Optional.of(actuatorDelayField);
+			}
+			else if (axis == RotationAxis.YAW) {
+				yawActuatorDelayField = Optional.of(actuatorDelayField);
+			}
+		}
+		
+		public void registerMainScreen(JFrame _mainScreen) {
+			assert(_mainScreen != null);
+			
+			mainScreen = Optional.of(_mainScreen);
+		}
+	}
+	
+	static class StartStopButtonListener extends SimulationStarter {
+		private Optional<JButton> startStopButton;
+		private Optional<JButton> singleStepButton;
+		private Optional<JButton> multiStepButton;
+		private Optional<JSpinner> stepPicker;
+		
+		public StartStopButtonListener() {
+			super();
+			startStopButton = Optional.empty();
+			singleStepButton = Optional.empty();
+			multiStepButton = Optional.empty();
+			stepPicker = Optional.empty();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				startStopButton.ifPresent((JButton ssb) -> {
+					if(ssb.getText().contentEquals("Start")) {
+				        if (!setSimulationDelays()) {
+				        	return;
+				        }
+				        setController();
+						controllerPicker.ifPresent((JComboBox<ControllerType> b) -> b.setEnabled(false));
+					}
+					
+					if (ssb.getText().contentEquals("Start") || ssb.getText().contentEquals("Resume")) {
+						sim.ifPresent((Simulator s) -> s.unpause());
+						ssb.setText("Pause");
+						
+						singleStepButton.ifPresent((JButton stb) -> stb.setEnabled(false));
+						multiStepButton.ifPresent((JButton msb) -> msb.setEnabled(false));
+						stepPicker.ifPresent((JSpinner picker) -> picker.setEnabled(false));
+					}
+					else if (ssb.getText().contentEquals("Pause")) {
+						sim.ifPresent((Simulator s) -> s.pause());
+						ssb.setText("Resume");
+						
+						singleStepButton.ifPresent((JButton stb) -> stb.setEnabled(true));
+						multiStepButton.ifPresent((JButton msb) -> msb.setEnabled(true));
+						stepPicker.ifPresent((JSpinner picker) -> picker.setEnabled(true));
+					}
+				});
+			}
+		}
+		
+		public void registerStartStopButton(JButton _startStopButton) {
+			assert(_startStopButton != null);
+
+			startStopButton = Optional.of(_startStopButton);
+		}
+		
+		public void registerSingleStepButton(JButton _singleStepButton) {
+			assert(_singleStepButton != null);
+
+			singleStepButton = Optional.of(_singleStepButton);
+		}
+		
+		public void registerMultiStepButton(JButton _multiStepButton) {
+			assert(_multiStepButton != null);
+			
+			multiStepButton = Optional.of(_multiStepButton);
+		}
+		
+		public void registerStepPicker(JSpinner _stepPicker) {
+			assert(_stepPicker != null);
+			
+			stepPicker = Optional.of(_stepPicker);
+		}
 	}
 	
 	public static final StartStopButtonListener startStopButtonListener = new StartStopButtonListener();
+	
+	static class SingleStepButtonListener extends SimulationStarter {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				if (!setSimulationDelays()) {
+					return;
+				}
+				setController();
+				sim.ifPresent((Simulator s) -> {
+					Thread t = new Thread(() -> s.tick());
+					t.start();
+					mainScreenStateListener.addThread(t);
+				});
+				controllerPicker.ifPresent((JComboBox<ControllerType> box) -> box.setEnabled(false));
+			}
+		}
+	}
+	
+	public static final SingleStepButtonListener singleStepButtonListener = new SingleStepButtonListener();
+	
+	static class MultiStepButtonListener extends SimulationStarter {
+		private Optional<JSpinner> stepPicker;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				if (!setSimulationDelays()) {
+					return;
+				}
+				setController();
+				sim.ifPresent((Simulator simulator) -> {
+					stepPicker.ifPresent((JSpinner stepSpinner) -> {
+						final int numSteps = (Integer) stepSpinner.getValue();
+						Thread t = new Thread(() -> {
+							for (int i = 0; i < numSteps; ++i) {
+								simulator.tick();
+							}
+						});
+						t.start();
+						mainScreenStateListener.addThread(t);
+					});
+				});
+				controllerPicker.ifPresent((JComboBox<ControllerType> box) -> box.setEnabled(false));
+			}
+		}
+		
+		public void registerStepPicker(JSpinner _stepPicker) {
+			assert(_stepPicker != null);
+			
+			stepPicker = Optional.of(_stepPicker);
+		}
+	}
+	
+	public static final MultiStepButtonListener multiStepButtonListener = new MultiStepButtonListener();
 	
 	static class AddEventButtonListener implements ActionListener {
 		private JFrame mainScreen;
@@ -247,18 +427,18 @@ public class MainScreenController {
 				final int index = i;
 				Double value = accelerationValues.get(index).orElse(Double.valueOf(0.0d));
 
-				AccelerationType type = AccelerationType.getType(index);
+				RotationAxis type = RotationAxis.values()[i];
 
-				if (type == AccelerationType.ROLL) {
+				if (type == RotationAxis.ROLL) {
 					model.accelerationEventData.rollAcceleration = value;
 				}
-				else if (type == AccelerationType.PITCH) {
+				else if (type == RotationAxis.PITCH) {
 					model.accelerationEventData.pitchAcceleration = value;
 				}
-				else if (type == AccelerationType.YAW) {
+				else if (type == RotationAxis.YAW) {
 					model.accelerationEventData.yawAcceleration = value;
 				}
-				System.out.println(String.format("%s Acceleration entered: %f", type.getText(), value));
+				System.out.println(String.format("%s Acceleration entered: %f", type.toString(), value));
 			}
 		}
 		
@@ -318,8 +498,8 @@ public class MainScreenController {
 			}
 		}
 
-		public AddEventButtonListener registerAccelerationField(JTextField accelerationField, AccelerationType type) {
-			this.accelerationFields[type.getIndex()] = accelerationField;
+		public AddEventButtonListener registerAccelerationField(JTextField accelerationField, RotationAxis axis) {
+			this.accelerationFields[axis.ordinal()] = accelerationField;
 			
 			return this;
 		}
@@ -350,5 +530,28 @@ public class MainScreenController {
 	}
 	
 	public static final AddEventButtonListener addEventButtonListener = new AddEventButtonListener();
+	
+	static class OpenWorldDataScreenListener implements ActionListener {
+		private Optional<JDialog> worldDataScreen;
+		
+		public OpenWorldDataScreenListener() {
+			worldDataScreen = Optional.empty();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getID() == ActionEvent.ACTION_PERFORMED) {
+				worldDataScreen.ifPresent((JDialog wds) -> wds.setVisible(true));
+			}
+		}
+		
+		public void registerWorldDataScreen(JDialog _worldDataScreen) {
+			assert(_worldDataScreen != null);
+			worldDataScreen = Optional.of(_worldDataScreen);
+		}
+		
+	}
+	
+	public static final OpenWorldDataScreenListener openWorldDataScreenListener = new OpenWorldDataScreenListener();
 	
 }
