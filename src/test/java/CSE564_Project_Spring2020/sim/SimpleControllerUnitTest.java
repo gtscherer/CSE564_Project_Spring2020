@@ -31,7 +31,7 @@ class SimpleControllerUnitTest {
 		
 		cut.tick();
 		
-		verify(mockRollActuator, never()).rotate(any());
+		verify(mockRollActuator, times(1)).rotate(Double.valueOf(0.0d));
 		verify(mockPitchActuator, never()).rotate(any());
 		verify(mockYawActuator, never()).rotate(any());
 		
@@ -48,7 +48,7 @@ class SimpleControllerUnitTest {
 		
 		when(mockGyroscope.getRoll()).thenReturn(new Degree());
 		
-		verify(mockRollActuator, times(1)).rotate(any());
+		verify(mockRollActuator, times(2)).rotate(any());
 		verify(mockPitchActuator, never()).rotate(any());
 		verify(mockYawActuator, never()).rotate(any());
 		
@@ -56,7 +56,7 @@ class SimpleControllerUnitTest {
 		
 		cut.tick();
 		
-		verify(mockRollActuator, times(1)).rotate(any());
+		verify(mockRollActuator, times(2)).rotate(any());
 		verify(mockPitchActuator, times(1)).rotate(Double.valueOf(-140d));
 		verify(mockYawActuator, never()).rotate(any());
 
@@ -64,7 +64,7 @@ class SimpleControllerUnitTest {
 		
 		cut.tick();
 
-		verify(mockRollActuator, times(1)).rotate(any());
+		verify(mockRollActuator, times(2)).rotate(any());
 		verify(mockPitchActuator, times(1)).rotate(any());
 		verify(mockYawActuator, times(1)).rotate(Double.valueOf(-260d));
 		verify(mockYawActuator, times(1)).rotate(any());
