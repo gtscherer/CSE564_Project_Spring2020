@@ -1,8 +1,8 @@
 package CSE564_Project_Spring2020.sim;
 
 public class DataChangeEvent {
-	private DataType type;
-	private String value;
+	private final DataType type;
+	private final String value;
 	
 	public DataChangeEvent(DataType _type, String _value) {
 		type = _type;

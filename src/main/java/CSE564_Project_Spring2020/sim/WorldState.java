@@ -1,7 +1,7 @@
 package CSE564_Project_Spring2020.sim;
 
 public class WorldState {
-	private Degree currentDegrees;
+	private final Degree currentDegrees;
 	
 	public WorldState() {
 		currentDegrees = new Degree();

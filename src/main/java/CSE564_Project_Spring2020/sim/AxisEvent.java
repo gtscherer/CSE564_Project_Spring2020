@@ -1,7 +1,8 @@
 package CSE564_Project_Spring2020.sim;
 
 public class AxisEvent {
-	public int startTime, duration;
+	public final int startTime;
+    public final int duration;
 	private double d_deg;
 	
 	public AxisEvent() {

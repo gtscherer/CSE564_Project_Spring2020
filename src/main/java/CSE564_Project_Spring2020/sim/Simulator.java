@@ -9,20 +9,20 @@ import java.util.Optional;
  * between components.
  */
 public class Simulator extends Thread implements ClockedComponent {
-	private World world;
-	private WorldEventManager worldEventManager;
-	private Gyroscope gyroscope;
-	private Actuator rollActuator;
-	private Actuator pitchActuator;
-	private Actuator yawActuator;
+	private final World world;
+	private final WorldEventManager worldEventManager;
+	private final Gyroscope gyroscope;
+	private final Actuator rollActuator;
+	private final Actuator pitchActuator;
+	private final Actuator yawActuator;
 	
-	private TimingAdjuster gyroAdjuster;
-	private TimingAdjuster rollActuatorAdjuster;
-	private TimingAdjuster pitchActuatorAdjuster;
-	private TimingAdjuster yawActuatorAdjuster;
+	private final TimingAdjuster gyroAdjuster;
+	private final TimingAdjuster rollActuatorAdjuster;
+	private final TimingAdjuster pitchActuatorAdjuster;
+	private final TimingAdjuster yawActuatorAdjuster;
 
 	private boolean isWaiting;
-	private long maxTicks;
+	private final long maxTicks;
 	private long numTicks;
 
 	private Optional<Controller> rollController;
@@ -136,8 +136,7 @@ public class Simulator extends Thread implements ClockedComponent {
 	@Override
 	public void run() {
 		Clock clock = Clock.systemDefaultZone();
-		final long startMillis = clock.millis();
-		long prevMillis = startMillis;
+		long prevMillis = clock.millis();
 		while (!isInterrupted() && numTicks < Math.min(maxTicks, Integer.MAX_VALUE)) {
 			try {
 				pauseIfNeeded();
@@ -169,9 +168,7 @@ public class Simulator extends Thread implements ClockedComponent {
 		++numTicks;
 		final long relativeTime = numTicks;
 
-		worldStateListener.ifPresent((DataListener l) -> {
-			l.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(relativeTime)));
-		});
+		worldStateListener.ifPresent((DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.WorldTime, Long.toString(relativeTime))));
 
 		worldEventManager.tick();
 		gyroAdjuster.tick();

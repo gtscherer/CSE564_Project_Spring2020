@@ -1,5 +1,6 @@
 package CSE564_Project_Spring2020.sim;
 
+@SuppressWarnings("DuplicatedCode")
 public class IncrementalController implements Controller {
 	private Gyroscope gyro;
 	private Actuator actuator;

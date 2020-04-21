@@ -21,9 +21,9 @@ import CSE564_Project_Spring2020.sim.Simulator;
 
 
 public class MainScreen {
-	private MainScreenModel model;
+	private final MainScreenModel model;
 	
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         MainScreen mainScreen = new MainScreen();
         JFrame mainScreenFrame = mainScreen.buildFrame();
         mainScreen.openSubscreens(mainScreenFrame);
@@ -129,7 +129,7 @@ public class MainScreen {
     	JPanel newPanel = new JPanel();
     	
     	JLabel pickerLabel = new JLabel("Choose controller:");
-    	JComboBox<ControllerType> controllerPicker = new JComboBox<ControllerType>(ControllerType.values());
+    	JComboBox<ControllerType> controllerPicker = new JComboBox<>(ControllerType.values());
     	
     	newPanel.add(pickerLabel);
     	newPanel.add(controllerPicker);

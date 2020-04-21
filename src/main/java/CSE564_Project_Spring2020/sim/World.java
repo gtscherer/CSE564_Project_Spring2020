@@ -3,7 +3,9 @@ package CSE564_Project_Spring2020.sim;
 import java.util.Optional;
 
 public class World {
-	private WorldState rollState, pitchState, yawState;
+	private final WorldState rollState;
+	private final WorldState pitchState;
+	private final WorldState yawState;
 	private Optional<DataListener> worldStateListener;
 	
 	public World() {

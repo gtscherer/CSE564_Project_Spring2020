@@ -5,7 +5,9 @@ import java.util.Optional;
 
 public class WorldEventManager implements ClockedComponent {
 	private Optional<World> world;
-	private AxisEventManager rollEventManager, pitchEventManager, yawEventManager;
+	private final AxisEventManager rollEventManager;
+	private final AxisEventManager pitchEventManager;
+	private final AxisEventManager yawEventManager;
 	
 	public WorldEventManager() {
 		world = Optional.empty();
@@ -58,8 +60,8 @@ public class WorldEventManager implements ClockedComponent {
 	
 	private Double aggregateEventData(List<AxisEvent> events) {
 		Optional<Double> aggregate = events.stream()
-				.map((AxisEvent e) -> e.getDeltaDegrees())
-				.reduce((Double lhs, Double rhs) -> lhs + rhs);
-		return aggregate.orElseGet(() -> Double.valueOf(0.0d));
+				.map(AxisEvent::getDeltaDegrees)
+				.reduce(Double::sum);
+		return aggregate.orElseGet(() -> 0.0d);
 	}
 }
