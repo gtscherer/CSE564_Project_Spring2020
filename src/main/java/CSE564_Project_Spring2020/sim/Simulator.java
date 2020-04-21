@@ -3,7 +3,7 @@ package CSE564_Project_Spring2020.sim;
 import java.time.Clock;
 import java.util.Optional;
 
-/** 
+/**
  * Main simulation loop for synchronized components.
  * Ordering of "ticks" denotes precedence relationships
  * between components.
@@ -30,11 +30,19 @@ public class Simulator extends Thread implements ClockedComponent {
 	private Optional<Controller> yawController;
 
 	private Optional<DataListener> worldStateListener;
-	
+
+	/**
+	 * Instantiates a new Simulator.
+	 */
 	public Simulator() {
 		this(Long.MAX_VALUE);
 	}
-	
+
+	/**
+	 * Instantiates a new Simulator.
+	 *
+	 * @param _maxTicks the max ticks
+	 */
 	public Simulator(long _maxTicks) {
 		world = new World();
 		worldEventManager = new WorldEventManager();
@@ -73,54 +81,100 @@ public class Simulator extends Thread implements ClockedComponent {
 		pitchActuatorAdjuster.setRate(1);
 		yawActuatorAdjuster.setRate(1);
 	}
-	
+
+	/**
+	 * Sets roll controller.
+	 *
+	 * @param _controller the controller
+	 */
 	public void setRollController(Controller _controller) {
 		assert(_controller != null);
 		_controller.setGyroscope(gyroscope);
 		_controller.setActuator(RotationAxis.ROLL, rollActuator);
 		rollController = Optional.of(_controller);
 	}
-	
+
+	/**
+	 * Sets pitch controller.
+	 *
+	 * @param _controller the controller
+	 */
 	public void setPitchController(Controller _controller) {
 		assert(_controller != null);
 		_controller.setGyroscope(gyroscope);
 		_controller.setActuator(RotationAxis.PITCH, pitchActuator);
 		pitchController = Optional.of(_controller);
 	}
-	
+
+	/**
+	 * Sets yaw controller.
+	 *
+	 * @param _controller the controller
+	 */
 	public void setYawController(Controller _controller) {
 		assert(_controller != null);
 		_controller.setGyroscope(gyroscope);
 		_controller.setActuator(RotationAxis.YAW, yawActuator);
 		yawController = Optional.of(_controller);
 	}
-	
+
+	/**
+	 * Gets world event manager.
+	 *
+	 * @return the world event manager
+	 */
 	public WorldEventManager getWorldEventManager() {
 		return worldEventManager;
 	}
-	
+
+	/**
+	 * Sets world data listener.
+	 *
+	 * @param l the l
+	 */
 	public void setWorldDataListener(DataListener l) {
 		assert(l != null);
 		worldStateListener = Optional.of(l);
 		world.setStateListener(l);
 	}
-	
+
+	/**
+	 * Sets gyroscope data listener.
+	 *
+	 * @param l the l
+	 */
 	public void setGyroscopeDataListener(DataListener l) {
 		assert(l != null);
 		gyroscope.setGyroscopeStateListener(l);
 	}
-	
+
+	/**
+	 * Sets actuator data listener.
+	 *
+	 * @param l the l
+	 */
 	public void setActuatorDataListener(DataListener l) {
 		assert(l != null);
 		rollActuator.setActuatorListener(l);
 		pitchActuator.setActuatorListener(l);
 		yawActuator.setActuatorListener(l);
 	}
-	
+
+	/**
+	 * Sets gyro delay.
+	 *
+	 * @param ms the ms
+	 */
 	public void setGyroDelay(int ms) {
 		gyroAdjuster.setRate(ms);
 	}
-	
+
+	/**
+	 * Sets actuator delay.
+	 *
+	 * @param axis the axis
+	 * @param ms   the ms
+	 */
 	public void setActuatorDelay(RotationAxis axis, int ms) {
 		if (axis == RotationAxis.ROLL) {
 			rollActuatorAdjuster.setRate(ms);
@@ -181,11 +235,17 @@ public class Simulator extends Thread implements ClockedComponent {
 		pitchActuatorAdjuster.tick();
 		yawActuatorAdjuster.tick();
 	}
-	
+
+	/**
+	 * Pause.
+	 */
 	public synchronized void pause() {
 		isWaiting = true;
 	}
-	
+
+	/**
+	 * Unpause.
+	 */
 	public synchronized void unpause() {
 		notify();
 	}

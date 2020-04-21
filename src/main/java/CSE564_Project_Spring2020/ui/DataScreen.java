@@ -12,15 +12,29 @@ import javax.swing.JPanel;
 
 import CSE564_Project_Spring2020.sim.DataType;
 
+/**
+ * The type Data screen.
+ */
 public class DataScreen {
 	private final JFrame mainScreen;
 	private final String title;
-	
+
+	/**
+	 * Instantiates a new Data screen.
+	 *
+	 * @param _mainScreen the main screen
+	 * @param _title      the title
+	 */
 	public DataScreen(JFrame _mainScreen, String _title) {
 		mainScreen = _mainScreen;
 		title = _title;
 	}
-	
+
+	/**
+	 * Build dialog j dialog.
+	 *
+	 * @return the j dialog
+	 */
 	public JDialog buildDialog() {
 		JDialog screen = new JDialog(mainScreen, title);
 		screen.setSize(300, 400);

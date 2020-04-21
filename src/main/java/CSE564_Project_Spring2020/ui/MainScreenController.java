@@ -23,12 +23,21 @@ import CSE564_Project_Spring2020.sim.ControllerType;
 import CSE564_Project_Spring2020.sim.RotationAxis;
 import CSE564_Project_Spring2020.sim.Simulator;
 
+/**
+ * The type Main screen controller.
+ */
 public class MainScreenController {
-	
+
+	/**
+	 * The type Main screen state listener.
+	 */
 	static class MainScreenStateListener implements WindowStateListener {
 		private Optional<Simulator> sim;
 		private List<Thread> threads;
-		
+
+		/**
+		 * Instantiates a new Main screen state listener.
+		 */
 		public MainScreenStateListener() {
 			sim = Optional.empty();
 			threads = new LinkedList<>();
@@ -43,12 +52,22 @@ public class MainScreenController {
 					.forEach(Thread::interrupt);
 			}
 		}
-		
+
+		/**
+		 * Register simulator.
+		 *
+		 * @param _sim the sim
+		 */
 		public void registerSimulator(Simulator _sim) {
 			assert(_sim != null);
 			sim = Optional.of(_sim);
 		}
-		
+
+		/**
+		 * Add thread.
+		 *
+		 * @param _thread the thread
+		 */
 		public void addThread(Thread _thread) {
 			threads.add(_thread);
 			
@@ -59,17 +78,32 @@ public class MainScreenController {
 			}
 		}
 	}
-	
+
+	/**
+	 * The constant mainScreenStateListener.
+	 */
 	public static final MainScreenStateListener mainScreenStateListener = new MainScreenStateListener();
 
+	/**
+	 * The type Simulation starter.
+	 */
 	static abstract class SimulationStarter implements ActionListener {
+		/**
+		 * The Sim.
+		 */
 		protected Optional<Simulator> sim;
+		/**
+		 * The Controller picker.
+		 */
 		protected Optional<JComboBox<ControllerType>> controllerPicker;
 		private Optional<JTextField> gyroDelayField, rollActuatorDelayField, pitchActuatorDelayField, yawActuatorDelayField;
 		private Optional<JFrame> mainScreen;
 		private boolean controllerIsSet;
 		private final boolean delaysAreSet;
-		
+
+		/**
+		 * Instantiates a new Simulation starter.
+		 */
 		public SimulationStarter() {
 			sim = Optional.empty();
 			controllerPicker = Optional.empty();
@@ -81,7 +115,10 @@ public class MainScreenController {
 			controllerIsSet = false;
 			delaysAreSet = false;
 		}
-		
+
+		/**
+		 * Sets controller.
+		 */
 		protected void setController() {
 			if (controllerIsSet) {
 				return;
@@ -101,7 +138,12 @@ public class MainScreenController {
 			);
 	        controllerIsSet = true;
 		}
-		
+
+		/**
+		 * Sets simulation delays.
+		 *
+		 * @return the simulation delays
+		 */
 		protected boolean setSimulationDelays() {
 			if (delaysAreSet) {
 				return false;
@@ -182,7 +224,12 @@ public class MainScreenController {
 			
 			return null;
 		}
-		
+
+		/**
+		 * Gets controller type.
+		 *
+		 * @return the controller type
+		 */
 		public ControllerType getControllerType() {
 			if (controllerPicker.isPresent()) {
 				int index = controllerPicker.get().getSelectedIndex();
@@ -193,25 +240,46 @@ public class MainScreenController {
 			}
 			return ControllerType.None;
 		}
-		
+
+		/**
+		 * Register controller picker.
+		 *
+		 * @param _controllerPicker the controller picker
+		 */
 		public void registerControllerPicker(JComboBox<ControllerType> _controllerPicker) {
 			assert(_controllerPicker != null);
 			
 			controllerPicker = Optional.of(_controllerPicker);
 		}
-		
+
+		/**
+		 * Register simulator.
+		 *
+		 * @param _sim the sim
+		 */
 		public void registerSimulator(Simulator _sim) {
 			assert(_sim != null);
 
 			sim = Optional.of(_sim);
 		}
-		
+
+		/**
+		 * Register gyro delay field.
+		 *
+		 * @param _gyroDelayField the gyro delay field
+		 */
 		public void registerGyroDelayField(JTextField _gyroDelayField) {
 			assert(_gyroDelayField != null);
 			
 			gyroDelayField = Optional.of(_gyroDelayField);
 		}
-		
+
+		/**
+		 * Register actuator delay field.
+		 *
+		 * @param axis               the axis
+		 * @param actuatorDelayField the actuator delay field
+		 */
 		public void registerActuatorDelayField(RotationAxis axis, JTextField actuatorDelayField) {
 			assert(actuatorDelayField != null);
 			
@@ -225,20 +293,31 @@ public class MainScreenController {
 				yawActuatorDelayField = Optional.of(actuatorDelayField);
 			}
 		}
-		
+
+		/**
+		 * Register main screen.
+		 *
+		 * @param _mainScreen the main screen
+		 */
 		public void registerMainScreen(JFrame _mainScreen) {
 			assert(_mainScreen != null);
 			
 			mainScreen = Optional.of(_mainScreen);
 		}
 	}
-	
+
+	/**
+	 * The type Start stop button listener.
+	 */
 	static class StartStopButtonListener extends SimulationStarter {
 		private Optional<JButton> startStopButton;
 		private Optional<JButton> singleStepButton;
 		private Optional<JButton> multiStepButton;
 		private Optional<JSpinner> stepPicker;
-		
+
+		/**
+		 * Instantiates a new Start stop button listener.
+		 */
 		public StartStopButtonListener() {
 			super();
 			startStopButton = Optional.empty();
@@ -278,34 +357,60 @@ public class MainScreenController {
 				});
 			}
 		}
-		
+
+		/**
+		 * Register start stop button.
+		 *
+		 * @param _startStopButton the start stop button
+		 */
 		public void registerStartStopButton(JButton _startStopButton) {
 			assert(_startStopButton != null);
 
 			startStopButton = Optional.of(_startStopButton);
 		}
-		
+
+		/**
+		 * Register single step button.
+		 *
+		 * @param _singleStepButton the single step button
+		 */
 		public void registerSingleStepButton(JButton _singleStepButton) {
 			assert(_singleStepButton != null);
 
 			singleStepButton = Optional.of(_singleStepButton);
 		}
-		
+
+		/**
+		 * Register multi step button.
+		 *
+		 * @param _multiStepButton the multi step button
+		 */
 		public void registerMultiStepButton(JButton _multiStepButton) {
 			assert(_multiStepButton != null);
 			
 			multiStepButton = Optional.of(_multiStepButton);
 		}
-		
+
+		/**
+		 * Register step picker.
+		 *
+		 * @param _stepPicker the step picker
+		 */
 		public void registerStepPicker(JSpinner _stepPicker) {
 			assert(_stepPicker != null);
 			
 			stepPicker = Optional.of(_stepPicker);
 		}
 	}
-	
+
+	/**
+	 * The constant startStopButtonListener.
+	 */
 	public static final StartStopButtonListener startStopButtonListener = new StartStopButtonListener();
-	
+
+	/**
+	 * The type Single step button listener.
+	 */
 	static class SingleStepButtonListener extends SimulationStarter {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -323,9 +428,15 @@ public class MainScreenController {
 			}
 		}
 	}
-	
+
+	/**
+	 * The constant singleStepButtonListener.
+	 */
 	public static final SingleStepButtonListener singleStepButtonListener = new SingleStepButtonListener();
-	
+
+	/**
+	 * The type Multi step button listener.
+	 */
 	static class MultiStepButtonListener extends SimulationStarter {
 		private Optional<JSpinner> stepPicker;
 
@@ -349,16 +460,27 @@ public class MainScreenController {
 				controllerPicker.ifPresent(picker -> picker.setEnabled(false));
 			}
 		}
-		
+
+		/**
+		 * Register step picker.
+		 *
+		 * @param _stepPicker the step picker
+		 */
 		public void registerStepPicker(JSpinner _stepPicker) {
 			assert(_stepPicker != null);
 			
 			stepPicker = Optional.of(_stepPicker);
 		}
 	}
-	
+
+	/**
+	 * The constant multiStepButtonListener.
+	 */
 	public static final MultiStepButtonListener multiStepButtonListener = new MultiStepButtonListener();
-	
+
+	/**
+	 * The type Add event button listener.
+	 */
 	static class AddEventButtonListener implements ActionListener {
 		private JFrame mainScreen;
 		private final JTextField[] accelerationFields;
@@ -367,6 +489,9 @@ public class MainScreenController {
 		
 		private MainScreenModel model;
 
+		/**
+		 * Instantiates a new Add event button listener.
+		 */
 		AddEventButtonListener() {
 			mainScreen = null;
 			accelerationFields = new JTextField[3];
@@ -489,37 +614,72 @@ public class MainScreenController {
 			}
 		}
 
+		/**
+		 * Register acceleration field.
+		 *
+		 * @param accelerationField the acceleration field
+		 * @param axis              the axis
+		 */
 		public void registerAccelerationField(JTextField accelerationField, RotationAxis axis) {
 			this.accelerationFields[axis.ordinal()] = accelerationField;
 
 		}
-		
+
+		/**
+		 * Register main screen.
+		 *
+		 * @param mainScreen the main screen
+		 */
 		public void registerMainScreen(JFrame mainScreen) {
 			this.mainScreen = mainScreen;
 
 		}
-		
+
+		/**
+		 * Register main screen model.
+		 *
+		 * @param model the model
+		 */
 		public void registerMainScreenModel(MainScreenModel model) {
 			this.model = model;
 
 		}
-		
+
+		/**
+		 * Register duration field.
+		 *
+		 * @param durationField the duration field
+		 */
 		public void registerDurationField(JTextField durationField) {
 			this.durationField = durationField;
 
 		}
-		
+
+		/**
+		 * Register time field.
+		 *
+		 * @param timeField the time field
+		 */
 		public void registerTimeField(JTextField timeField) {
 			this.timeField = timeField;
 
 		}
 	}
-	
+
+	/**
+	 * The constant addEventButtonListener.
+	 */
 	public static final AddEventButtonListener addEventButtonListener = new AddEventButtonListener();
-	
+
+	/**
+	 * The type Open world data screen listener.
+	 */
 	static class OpenWorldDataScreenListener implements ActionListener {
 		private Optional<JDialog> worldDataScreen;
-		
+
+		/**
+		 * Instantiates a new Open world data screen listener.
+		 */
 		public OpenWorldDataScreenListener() {
 			worldDataScreen = Optional.empty();
 		}
@@ -530,14 +690,22 @@ public class MainScreenController {
 				worldDataScreen.ifPresent(dataScreen -> dataScreen.setVisible(true));
 			}
 		}
-		
+
+		/**
+		 * Register world data screen.
+		 *
+		 * @param _worldDataScreen the world data screen
+		 */
 		public void registerWorldDataScreen(JDialog _worldDataScreen) {
 			assert(_worldDataScreen != null);
 			worldDataScreen = Optional.of(_worldDataScreen);
 		}
 		
 	}
-	
+
+	/**
+	 * The constant openWorldDataScreenListener.
+	 */
 	public static final OpenWorldDataScreenListener openWorldDataScreenListener = new OpenWorldDataScreenListener();
 	
 }

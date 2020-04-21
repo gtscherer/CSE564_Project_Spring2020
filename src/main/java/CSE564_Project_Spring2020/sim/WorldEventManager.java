@@ -3,19 +3,30 @@ package CSE564_Project_Spring2020.sim;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The type World event manager.
+ */
 public class WorldEventManager implements ClockedComponent {
 	private Optional<World> world;
 	private final AxisEventManager rollEventManager;
 	private final AxisEventManager pitchEventManager;
 	private final AxisEventManager yawEventManager;
-	
+
+	/**
+	 * Instantiates a new World event manager.
+	 */
 	public WorldEventManager() {
 		world = Optional.empty();
 		rollEventManager = new AxisEventManager();
 		pitchEventManager = new AxisEventManager();
 		yawEventManager = new AxisEventManager();
 	}
-	
+
+	/**
+	 * Sets world.
+	 *
+	 * @param _world the world
+	 */
 	public void setWorld(World _world) {
 		assert(_world != null);
 		world = Optional.of(_world);
@@ -45,7 +56,17 @@ public class WorldEventManager implements ClockedComponent {
 			world.get().yawChanged(yaw);
 		}
 	}
-	
+
+	/**
+	 * Add event.
+	 *
+	 * @param startTime the start time
+	 * @param duration  the duration
+	 * @param d_roll    the d roll
+	 * @param d_pitch   the d pitch
+	 * @param d_yaw     the d yaw
+	 * @throws AssertionError the assertion error
+	 */
 	public void addEvent(
 		int startTime,
 		int duration,
