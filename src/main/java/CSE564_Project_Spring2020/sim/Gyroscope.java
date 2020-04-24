@@ -6,8 +6,8 @@ import java.util.Optional;
  * The type Gyroscope.
  */
 public class Gyroscope implements ClockedComponent {
-	private Optional<Degree> prevRoll, prevPitch, prevYaw;
-	private Optional<World> world;
+	private Degree prevRoll, prevPitch, prevYaw;
+	private World world;
 	
 	private Optional<DataListener> gyroscopeStateListener;
 
@@ -15,10 +15,10 @@ public class Gyroscope implements ClockedComponent {
 	 * Instantiates a new Gyroscope.
 	 */
 	public Gyroscope() {
-		prevRoll = Optional.empty();
-		prevPitch = Optional.empty();
-		prevYaw = Optional.empty();
-		world = Optional.empty();
+		prevRoll = new Degree();
+		prevPitch = new Degree();
+		prevYaw = new Degree();
+		world = null;
 		
 		gyroscopeStateListener = Optional.empty();
 	}
@@ -30,12 +30,12 @@ public class Gyroscope implements ClockedComponent {
 	 */
 	public void setWorld(World _world) {
 		assert(_world != null);
-		world = Optional.of(_world);
+		world = _world;
 	}
 
 	@Override
 	public void tick() {
-		assert(world.isPresent());
+		assert(world != null);
 		refresh();
 	}
 
@@ -45,7 +45,7 @@ public class Gyroscope implements ClockedComponent {
 	 * @return the roll
 	 */
 	public Degree getRoll() {
-		return prevRoll.orElse(new Degree());
+		return prevRoll;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class Gyroscope implements ClockedComponent {
 	 * @return the pitch
 	 */
 	public Degree getPitch() {
-		return prevPitch.orElse(new Degree());
+		return prevPitch;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Gyroscope implements ClockedComponent {
 	 * @return the yaw
 	 */
 	public Degree getYaw() {
-		return prevYaw.orElse(new Degree());
+		return prevYaw;
 	}
 
 	/**
@@ -77,31 +77,31 @@ public class Gyroscope implements ClockedComponent {
 	}
 	
 	private void refresh() {
-		Degree newRoll = world.get().getCurrentRoll();
+		Degree newRoll = world.getCurrentRoll();
 		
-		if (!prevRoll.isPresent() || !prevRoll.get().equals(newRoll)) {
+		if (!prevRoll.equals(newRoll)) {
 			gyroscopeStateListener.ifPresent(
 				(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.GyroRoll, newRoll.toString()))
 			);
 		}
-		prevRoll = Optional.of(newRoll.copy());
+		prevRoll = newRoll.copy();
 
-		Degree newPitch = world.get().getCurrentPitch();
+		Degree newPitch = world.getCurrentPitch();
 		
-		if (!prevPitch.isPresent() || !prevPitch.get().equals(newPitch)) {
+		if (!prevPitch.equals(newPitch)) {
 			gyroscopeStateListener.ifPresent(
 				(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.GyroPitch, newPitch.toString()))
 			);
 		}
-		prevPitch = Optional.of(newPitch.copy());
+		prevPitch = newPitch.copy();
 		
-		Degree newYaw = world.get().getCurrentYaw();
+		Degree newYaw = world.getCurrentYaw();
 		
-		if (!prevYaw.isPresent() || !prevYaw.get().equals(newYaw)) {
+		if (!prevYaw.equals(newYaw)) {
 			gyroscopeStateListener.ifPresent(
 				(DataListener l) -> l.dataChanged(new DataChangeEvent(DataType.GyroYaw, newYaw.toString()))
 			);
 		}
-		prevYaw = Optional.of(newYaw.copy());
+		prevYaw = newYaw.copy();
 	}
 }
