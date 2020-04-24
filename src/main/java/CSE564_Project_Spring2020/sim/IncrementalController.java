@@ -1,9 +1,5 @@
 package CSE564_Project_Spring2020.sim;
 
-/**
- * The type Incremental controller.
- */
-@SuppressWarnings("DuplicatedCode")
 public class IncrementalController implements Controller {
 	private Gyroscope gyro;
 	private Actuator actuator;
@@ -11,17 +7,14 @@ public class IncrementalController implements Controller {
 	
 	private double p_deg;
 	private double multi;
-
-	/**
-	 * Instantiates a new Incremental controller.
-	 */
+	
 	public IncrementalController() {
 		gyro = null;
 		actuator = null;
 		axis = null;
 		
 		p_deg = 0d;
-		multi = -30d;
+		multi = 0d;
 	}
 	
 	@Override
@@ -45,16 +38,24 @@ public class IncrementalController implements Controller {
 		double amount = deg.getValue();
 		
 		if (deg.isZero()) {
-			multi = 0;
+			actuator.rotate(0.0d);
+		} else {
+			if (amount < 180) {
+				if (p_deg <= amount) {
+					multi -= 1;
+				} else {
+					multi += 0.2;
+				}
+			} else {
+				if (p_deg >= amount) {
+					multi += 1;
+				} else {
+					multi -= 0.2;
+				}
+			}
+			actuator.rotate((Math.abs(amount)/amount) * multi);
 		}
-		else if (Math.abs(amount) > Math.abs(p_deg)) {
-			multi -= 5;
-		}
-		else if (multi < -30) {
-			multi += 5;
-		}
-		
-		actuator.rotate((Math.abs(amount)/amount) * multi);
+
 		p_deg = amount;
 	}
 
@@ -72,5 +73,4 @@ public class IncrementalController implements Controller {
 		actuator = _actuator;
 		axis = _axis;
 	}
-
 }
