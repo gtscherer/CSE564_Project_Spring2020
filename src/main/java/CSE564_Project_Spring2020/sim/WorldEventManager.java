@@ -7,7 +7,7 @@ import java.util.Optional;
  * The type World event manager.
  */
 public class WorldEventManager implements ClockedComponent {
-	private Optional<World> world;
+	private World world;
 	private final AxisEventManager rollEventManager;
 	private final AxisEventManager pitchEventManager;
 	private final AxisEventManager yawEventManager;
@@ -16,7 +16,7 @@ public class WorldEventManager implements ClockedComponent {
 	 * Instantiates a new World event manager.
 	 */
 	public WorldEventManager() {
-		world = Optional.empty();
+		world = null;
 		rollEventManager = new AxisEventManager();
 		pitchEventManager = new AxisEventManager();
 		yawEventManager = new AxisEventManager();
@@ -29,12 +29,12 @@ public class WorldEventManager implements ClockedComponent {
 	 */
 	public void setWorld(World _world) {
 		assert(_world != null);
-		world = Optional.of(_world);
+		world = _world;
 	}
 	
 	@Override
 	public void tick() {
-		assert(world.isPresent());
+		assert(world != null);
 		
 		rollEventManager.tick();
 		pitchEventManager.tick();
@@ -45,15 +45,15 @@ public class WorldEventManager implements ClockedComponent {
 		Double yaw = aggregateEventData(yawEventManager.getActiveEvents());
 		
 		if (roll != 0.0d) {
-			world.get().rollChanged(roll);
+			world.rollChanged(roll);
 		}
 		
 		if (pitch != 0.0d) {
-			world.get().pitchChanged(pitch);
+			world.pitchChanged(pitch);
 		}
 		
 		if (yaw != 0.0d) {
-			world.get().yawChanged(yaw);
+			world.yawChanged(yaw);
 		}
 	}
 

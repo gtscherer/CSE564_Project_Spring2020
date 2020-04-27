@@ -56,7 +56,7 @@ class AxisEventManagerUnitTest {
 		assertTrue(cut.getActiveEvents().isEmpty());
 		
 		cut.addEvent(1, 1, 11.0d);
-		cut.addEvent(2, 1, 21.0d);
+		cut.addEvent(2, 1, -21.0d);
 		cut.addEvent(2, 2, 22.0d);
 		cut.addEvent(3, 1, 31.0d);
 		
@@ -82,7 +82,7 @@ class AxisEventManagerUnitTest {
 		
 		assertEquals(2, activeEvents.get(0).startTime);
 		assertEquals(1, activeEvents.get(0).duration);
-		assertEquals(21.0d, activeEvents.get(0).getDeltaDegrees());
+		assertEquals(-21.0d, activeEvents.get(0).getDeltaDegrees());
 		
 		assertEquals(2, activeEvents.get(1).startTime);
 		assertEquals(2, activeEvents.get(1).duration);

@@ -147,5 +147,13 @@ class DegreeUnitTest {
 		assertThrows(AssertionError.class, () -> new Degree(Double.POSITIVE_INFINITY));
 		assertThrows(AssertionError.class, () -> new Degree(Double.NEGATIVE_INFINITY));
 		assertThrows(AssertionError.class, () -> new Degree(Double.NaN));
+		
+		assertThrows(AssertionError.class, () -> new Degree().add(Double.POSITIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree().add(Double.NEGATIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree().add(Double.NaN));
+		
+		assertThrows(AssertionError.class, () -> new Degree().plus(Double.POSITIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree().plus(Double.NEGATIVE_INFINITY));
+		assertThrows(AssertionError.class, () -> new Degree().plus(Double.NaN));
 	}
 }

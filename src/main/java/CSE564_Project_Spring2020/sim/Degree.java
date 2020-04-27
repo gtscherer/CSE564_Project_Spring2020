@@ -47,6 +47,8 @@ public class Degree {
 	 * @return the degree
 	 */
 	public Degree plus(double _value) {
+		assert(!Double.isInfinite(_value));
+		assert(!Double.isNaN(_value));
 		return new Degree(value + _value);
 	}
 
@@ -65,6 +67,8 @@ public class Degree {
 	 * @param _value the value
 	 */
 	public void add(double _value) {
+		assert(!Double.isInfinite(_value));
+		assert(!Double.isNaN(_value));
 		value += _value;
 		normalize();
 	}
@@ -92,6 +96,8 @@ public class Degree {
 				value = 0.0d;
 			}
 		}
+		
+		assert(value >= 0.0d && value < 360.0d);
 	}
 
 	/**

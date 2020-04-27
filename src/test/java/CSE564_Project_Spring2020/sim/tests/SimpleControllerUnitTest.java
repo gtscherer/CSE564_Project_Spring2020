@@ -22,11 +22,11 @@ class SimpleControllerUnitTest {
 		Actuator mockPitchActuator = mock(Actuator.class);
 		Actuator mockYawActuator = mock(Actuator.class);
 		
-		cut.setGyroscope(mockGyroscope);
-		
 		when(mockGyroscope.getRoll()).thenReturn(new Degree());
 		when(mockGyroscope.getPitch()).thenReturn(new Degree());
 		when(mockGyroscope.getYaw()).thenReturn(new Degree());
+		
+		cut.setGyroscope(mockGyroscope);
 		
 		cut.setActuator(RotationAxis.ROLL, mockRollActuator);
 		
@@ -76,8 +76,19 @@ class SimpleControllerUnitTest {
 		SimpleController cut = new SimpleController();
 
 		assertThrows(AssertionError.class, () -> cut.setGyroscope(null));
+		assertThrows(AssertionError.class, () -> cut.setActuator(null, null));
 		assertThrows(AssertionError.class, () -> cut.setActuator(RotationAxis.ROLL, null));
 		assertThrows(AssertionError.class, () -> cut.setActuator(null, mock(Actuator.class)));
+		assertThrows(AssertionError.class, () -> cut.tick());
+		
+		cut.setGyroscope(mock(Gyroscope.class));
+		
+		assertThrows(AssertionError.class, () -> cut.tick());
+		
+		SimpleController secondCut = new SimpleController();
+		secondCut.setActuator(RotationAxis.ROLL, mock(Actuator.class));
+		
+		assertThrows(AssertionError.class, () -> cut.tick());
 	}
 
 }

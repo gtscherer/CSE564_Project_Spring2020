@@ -1,19 +1,17 @@
 package CSE564_Project_Spring2020.sim;
 
-import java.util.Optional;
-
 /**
  * The type Timing adjuster.
  */
 public class TimingAdjuster {
 	private int refreshRate, ticks;
-	private Optional<ClockedComponent> adjustedComponent;
+	private ClockedComponent adjustedComponent;
 
 	/**
 	 * Instantiates a new Timing adjuster.
 	 */
 	public TimingAdjuster() {
-		adjustedComponent = Optional.empty();
+		adjustedComponent = null;
 		refreshRate = 0;
 		ticks = 0;
 	}
@@ -35,7 +33,7 @@ public class TimingAdjuster {
 	 */
 	public void setAdjustedComponent(ClockedComponent component) {
 		assert(component != null);
-		adjustedComponent = Optional.of(component);
+		adjustedComponent = component;
 	}
 
 	/**
@@ -43,11 +41,11 @@ public class TimingAdjuster {
 	 */
 	public void tick() {
 		assert(refreshRate > 0);
-		assert(adjustedComponent.isPresent());
+		assert(adjustedComponent != null);
 		++ticks;
 		
 		if (ticks == refreshRate) {
-			adjustedComponent.get().tick();
+			adjustedComponent.tick();
 			ticks = 0;
 		}
 	}

@@ -3,7 +3,7 @@ package CSE564_Project_Spring2020.sim;
 /**
  * The type Simple controller.
  */
-@SuppressWarnings("DuplicatedCode")
+//@SuppressWarnings("DuplicatedCode")
 public class SimpleController implements Controller {
 	private Gyroscope gyro;
 	private Actuator actuator;

@@ -24,6 +24,8 @@ class ActuatorUnitTest {
 		World mockWorld = mock(World.class);
 		
 		cut.setWorld(mockWorld);
+		
+		cut.tick();
 	}
 	
 	@Test
@@ -74,13 +76,22 @@ class ActuatorUnitTest {
 		cut.tick();
 
 		verify(mockWorld, times(1)).rollChanged(5.3d);
+		verify(mockWorld, times(1)).rollChanged(anyDouble());
 		verify(mockWorld, never()).pitchChanged(anyDouble());
 		verify(mockWorld, never()).yawChanged(anyDouble());
+		
+		cut.tick();
+		
+		verify(mockWorld, times(2)).rollChanged(5.3d);
+		verify(mockWorld, times(2)).rollChanged(anyDouble());
+		verify(mockWorld, never()).pitchChanged(anyDouble());
+		verify(mockWorld, never()).yawChanged(anyDouble());
+		
 	}
 	
 	@Test
 	void testRotatePreconditions() {
-		Actuator cut = new Actuator(RotationAxis.YAW);
+		Actuator cut = new Actuator(RotationAxis.PITCH);
 
 		cut.rotate(5.3d);
 		
